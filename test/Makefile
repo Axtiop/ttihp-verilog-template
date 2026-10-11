@@ -7,7 +7,7 @@ FST ?= -fst # Use more efficient FST format
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
 PROJECT_SOURCES = \
-    ./top_wrapper.v \
+    ./top_wrapper.sv \
     ./top.sv \
     ./SC/SC.sv \
     ./SC/uart.sv
