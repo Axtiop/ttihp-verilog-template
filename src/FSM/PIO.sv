@@ -1,4 +1,4 @@
-import isr_config_pkg::*;
+
 
 module PIO #(
     parameter int NumGPIOS = 8
@@ -29,7 +29,7 @@ module PIO #(
 
     input  logic [15:0] conf0,
     input  logic [15:0] conf1,
-    input isr_config_t isr_configs [8],
+    input isr_config_pkg::isr_config_t isr_configs [8],
     input logic [7:0] isr_shift_on_mov,
 
     // I/O
@@ -39,6 +39,8 @@ module PIO #(
     // ISR status
     output logic [7:0] isr_full
 );
+
+    import isr_config_pkg::*;
 
     logic [6:0] isr_configs_flat [0:7];
 
