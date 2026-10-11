@@ -39,7 +39,15 @@ module PIO #(
     // ISR status
     output logic [7:0] isr_full
 );
-    shift_mode_t current_shift_mode;
+
+    logic [6:0] isr_configs_flat [0:7];
+
+    always_comb begin
+        for (int j = 0; j < 8; j++) begin
+            isr_configs_flat[j] = isr_configs[j];
+        end
+    end
+
     logic [7:0] gpio_io_r;
 
     logic [7:0] gpio_out;
@@ -212,9 +220,9 @@ always_ff @(posedge clk or negedge rst_ni) begin
 
         // Process all ISR registers
         for (int i = 0; i < 8; i++) begin
-            current_shift_mode = isr_configs[i].shift_mode;
 
-            case (current_shift_mode)
+
+            case (isr_configs_flat[i][1:0])
 
                 // ------------------------------------------------
                 // No shift
