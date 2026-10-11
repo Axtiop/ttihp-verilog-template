@@ -17,7 +17,7 @@ project:
   # Source files must be in ./src and you must list each source file separately, one per line.
   # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
   source_files:
-    - "FSM/RM_IHPSG13_1P_256x16_c2_bm_bist.sv"
+    - "FSM/RM_IHPSG13_1P_256x16_c2_bm_bist.v"
     - "FSM/imem_ram.sv"
     - "FSM/isr_config_pkg.sv"
     - "FSM/PIO.sv"
