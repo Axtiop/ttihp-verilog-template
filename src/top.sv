@@ -50,19 +50,11 @@ module top #(
     // Drive all GPIO pins to logic 1.
     // These pins are independent of the internal SC signals.
 
-    assign gpio_io =
-        data_out
-        | {7'b0, data_valid}
-        | {7'b0, boot_finished}
-        | word_count[7:0]
-        | {7'b0, word_count[8]}
-        | {7'b0, error}
-        | {7'b0, imem_load};
 
     // ------------------------------------------------------------------------
     // FSM
     // ------------------------------------------------------------------------
-    /*
+    
     FSM uFSM (
         .clk           (clk),
         .rst_ni        (rst_ni),
@@ -75,6 +67,6 @@ module top #(
         .word_count    (word_count),
         .imem_load     (imem_load)
     );
-    */
+    
 
 endmodule
