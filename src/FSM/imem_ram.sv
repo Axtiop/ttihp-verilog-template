@@ -65,6 +65,7 @@ module imem_ram #(
     //   IHP SRAM macro
     // ---------------------------------------------------------
 
+`ifdef SIM
 
     // ---------------------------------------------------------
     // ASIC: IHP SRAM macro
@@ -125,6 +126,27 @@ module imem_ram #(
 
     // The SRAM macro provides synchronous read data.
     assign rd_data = sram_dout;
-l
+
+
+`else
+
+    // ---------------------------------------------------------
+    // FPGA / simulation: inferred RAM
+    // ---------------------------------------------------------
+
+    logic [DATA_WIDTH-1:0] mem [0:DEPTH-1];
+
+    always_ff @(posedge clk) begin
+        // Write has priority over read, matching the ASIC
+        // single-port SRAM behavior.
+        if (word_ready) begin
+            mem[word_addr] <= word_buf;
+        end
+        else if (rd_en) begin
+            rd_data <= mem[rd_addr];
+        end
+    end
+
+`endif
 
 endmodule

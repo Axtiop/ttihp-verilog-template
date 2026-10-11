@@ -10,7 +10,14 @@ PROJECT_SOURCES = \
     ./top_wrapper.sv \
     ./top.sv \
     ./SC/SC.sv \
-    ./SC/uart.sv
+    ./SC/uart.sv \
+    ./FSM/FSM.sv \
+	./FSM/PIO.sv \
+    ./FSM/imem_ram.sv \
+	./FSM/isr_config_pkg.sv \
+	./FSM/RM_IHPSG13_1P_256x16_c2_bm_bist.sv \
+	./FSM/RM_IHPSG13_1P_core_behavioral_bm_bist.sv 
+
 
 ifneq ($(GATES),yes)
 
