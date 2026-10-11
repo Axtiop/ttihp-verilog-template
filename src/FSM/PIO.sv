@@ -249,7 +249,7 @@ always_ff @(posedge clk or negedge rst_ni) begin
                 // ------------------------------------------------
                 SHIFT_EVENT: begin
 
-                    case (iisr_configs_flat[i][3:2])
+                    case (isr_configs_flat[i][3:2])
 
                         // ----------------------------------------
                         // Rising edge
