@@ -7,16 +7,16 @@ FST ?= -fst # Use more efficient FST format
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
 PROJECT_SOURCES = \
-    ./top_wrapper.sv \
-    ./top.sv \
+	./SC/uart.sv \
     ./SC/SC.sv \
-    ./SC/uart.sv \
-    ./FSM/FSM.sv \
-	./FSM/PIO.sv \
-    ./FSM/imem_ram.sv \
 	./FSM/isr_config_pkg.sv \
 	./FSM/RM_IHPSG13_1P_256x16_c2_bm_bist.v \
-	./FSM/RM_IHPSG13_1P_core_behavioral_bm_bist.v 
+	./FSM/RM_IHPSG13_1P_core_behavioral_bm_bist.v \
+	./FSM/FSM.sv \
+	./FSM/PIO.sv \
+    ./FSM/imem_ram.sv \
+	./top_wrapper.sv \
+    ./top.sv \
 
 
 ifneq ($(GATES),yes)
