@@ -239,7 +239,7 @@ always_ff @(posedge clk or negedge rst_ni) begin
 
                     isr[i] <= {
                         isr[i][14:0],
-                        gpio_io_d[isr_configs[i].isr_id]
+                        gpio_io_d[isr_configs_flat[i][6:4]]
                     };
 
                 end
@@ -249,15 +249,15 @@ always_ff @(posedge clk or negedge rst_ni) begin
                 // ------------------------------------------------
                 SHIFT_EVENT: begin
 
-                    case (isr_configs[i].event_type)
+                    case (iisr_configs_flat[i][3:2])
 
                         // ----------------------------------------
                         // Rising edge
                         // ----------------------------------------
                         EVENT_RISING: begin
 
-                            if (gpio_io_2r[isr_configs[i].isr_id] &&
-                                !gpio_io_d[isr_configs[i].isr_id]) begin
+                            if (gpio_io_2r[isr_configs_flat[i][6:4]] &&
+                                !gpio_io_d[isr_configs_flat[i][6:4]]) begin
 
                                 isr[i] <= {
                                     isr[i][14:0],
@@ -274,8 +274,8 @@ always_ff @(posedge clk or negedge rst_ni) begin
                         // ----------------------------------------
                         EVENT_FALLING: begin
 
-                            if (!gpio_io_2r[isr_configs[i].isr_id] &&
-                                gpio_io_d[isr_configs[i].isr_id]) begin
+                            if (!gpio_io_2r[isr_configs_flat[i][6:4]] &&
+                                gpio_io_d[isr_configs_flat[i][6:4]]) begin
 
                                 isr[i] <= {
                                     isr[i][14:0],
@@ -292,7 +292,7 @@ always_ff @(posedge clk or negedge rst_ni) begin
                         // ----------------------------------------
                         EVENT_HIGH: begin
 
-                            if (gpio_io_2r[isr_configs[i].isr_id]) begin
+                            if (gpio_io_2r[isr_configs_flat[i][6:4]]) begin
 
                                 isr[i] <= {
                                     isr[i][14:0],
@@ -309,7 +309,7 @@ always_ff @(posedge clk or negedge rst_ni) begin
                         // ----------------------------------------
                         EVENT_LOW: begin
 
-                            if (!gpio_io_2r[isr_configs[i].isr_id]) begin
+                            if (!gpio_io_2r[isr_configs_flat[i][6:4]]) begin
 
                                 isr[i] <= {
                                     isr[i][14:0],
