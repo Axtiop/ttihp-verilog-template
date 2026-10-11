@@ -75,7 +75,7 @@ module SC (
     // Temporary assignments until UART is implemented.
     //
     // Remove these when the uart module is instantiated.
-    assign tx              = 1'b1;
+    //assign tx              = 1'b1;
 
 
     // ============================================================
