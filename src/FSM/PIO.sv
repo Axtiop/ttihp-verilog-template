@@ -29,7 +29,7 @@ module PIO #(
 
     input  logic [15:0] conf0,
     input  logic [15:0] conf1,
-    input isr_config_pkg::isr_config_t [7:0] isr_configs,
+    input  logic [6:0] isr_configs [0:7],
     input logic [7:0] isr_shift_on_mov,
 
     // I/O

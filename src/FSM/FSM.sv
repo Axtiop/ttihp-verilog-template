@@ -86,7 +86,7 @@ module FSM #(
     logic [15:0] rgp;
 
     // 8 ISR configurations, indexed by ISR ID [6:4]
-    isr_config_t isr_configs [8];
+    logic [6:0] isr_configs [0:7];
 
     // =========================================================================
     // Instruction memory
@@ -588,7 +588,7 @@ end
                             end
 
                             DEST_CONF_ISRx: begin
-                                isr_configs[mov_data0[9:7]] = isr_config_t'(mov_data0[6:0]);
+                                isr_configs[mov_data0[9:7]] = mov_data0[6:0];
                                 isr_shift_on_mov[mov_data0[9:7]] <= 1'b1;
 
                             end 
