@@ -41,7 +41,7 @@ module PIO #(
 );
 
     logic [1:0] SHIFT_NONE  = 2'b00;
-    logic [1:0] SHIFT_CLOCK = 2'b01:
+    logic [1:0] SHIFT_CLOCK = 2'b01;
     logic [1:0] SHIFT_EVENT = 2'b10;
     logic [1:0] SHIFT_MOV  = 2'b11;
 
