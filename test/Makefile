@@ -9,7 +9,6 @@ SRC_DIR = $(PWD)/../src
 PROJECT_SOURCES = \
 	./SC/uart.sv \
     ./SC/SC.sv \
-	./FSM/isr_config_pkg.sv \
 	./FSM/RM_IHPSG13_1P_256x16_c2_bm_bist.v \
 	./FSM/RM_IHPSG13_1P_core_behavioral_bm_bist.v \
 	./FSM/FSM.sv \

@@ -20,7 +20,7 @@ module FSM #(
     input logic [8:0]  word_count,
     input logic        imem_load
 );
-    import isr_config_pkg::*;
+
     // Stop everything while boot is not finished
     logic boot_reset_n;
     assign boot_reset_n = rst_ni & boot_finished;  

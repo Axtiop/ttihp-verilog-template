@@ -19,7 +19,6 @@ project:
   source_files:
     - "FSM/RM_IHPSG13_1P_256x16_c2_bm_bist.v"
     - "FSM/imem_ram.sv"
-    - "FSM/isr_config_pkg.sv"
     - "FSM/PIO.sv"
     - "FSM/FSM.sv"
     - "SC/uart.sv"

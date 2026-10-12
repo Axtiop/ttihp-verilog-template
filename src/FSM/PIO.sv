@@ -40,8 +40,6 @@ module PIO #(
     output logic [7:0] isr_full
 );
 
-    import isr_config_pkg::*;
-
     logic [6:0] isr_configs_flat [0:7];
 
     always_comb begin
