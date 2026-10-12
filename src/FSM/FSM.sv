@@ -618,6 +618,13 @@ end
 
     end
 
+    logic [55:0] isr_configs_packed;
+
+    always_comb begin
+        for (int j = 0; j < 8; j++) begin
+            isr_configs_packed[j*7 +: 7] = isr_configs[j];
+        end
+    end
     
     PIO uPIO (
         // Clock and reset
@@ -646,7 +653,7 @@ end
 
         .conf0      (conf0),
         .conf1      (conf1),
-        .isr_configs (isr_configs),
+        .isr_configs (isr_configs_packed),
         .isr_shift_on_mov (isr_shift_on_mov),
 
         // I/O

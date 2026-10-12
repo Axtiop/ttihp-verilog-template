@@ -29,7 +29,7 @@ module PIO #(
 
     input  logic [15:0] conf0,
     input  logic [15:0] conf1,
-    input  logic [6:0] isr_configs [0:7],
+    input  logic [55:0] isr_configs,
     input logic [7:0] isr_shift_on_mov,
 
     // I/O
@@ -46,7 +46,7 @@ module PIO #(
 
     always_comb begin
         for (int j = 0; j < 8; j++) begin
-            isr_configs_flat[j] = isr_configs[j];
+            isr_configs_flat[j] = isr_configs[j*7 +:7];
         end
     end
 
