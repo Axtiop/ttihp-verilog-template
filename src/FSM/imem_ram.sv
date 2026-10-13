@@ -65,7 +65,7 @@ module imem_ram #(
     //   IHP SRAM macro
     // ---------------------------------------------------------
 
-`ifndef SIM
+`ifndef INFERRED_RAM
 
     // ---------------------------------------------------------
     // ASIC: IHP SRAM macro

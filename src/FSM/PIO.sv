@@ -40,15 +40,15 @@ module PIO #(
     output logic [7:0] isr_full
 );
 
-    logic [1:0] SHIFT_NONE  = 2'b00;
-    logic [1:0] SHIFT_CLOCK = 2'b01;
-    logic [1:0] SHIFT_EVENT = 2'b10;
-    logic [1:0] SHIFT_MOV  = 2'b11;
+    localparam logic [1:0] SHIFT_NONE  = 2'b00;
+    localparam logic [1:0] SHIFT_CLOCK = 2'b01;
+    localparam logic [1:0] SHIFT_EVENT = 2'b10;
+    localparam logic [1:0] SHIFT_MOV   = 2'b11;
 
-    logic [1:0] EVENT_RISING  = 2'b00;
-    logic [1:0] EVENT_FALLING = 2'b01;
-    logic [1:0] EVENT_HIGH    = 2'b10;
-    logic [1:0] EVENT_LOW     = 2'b11;
+    localparam logic [1:0] EVENT_RISING  = 2'b00;
+    localparam logic [1:0] EVENT_FALLING = 2'b01;
+    localparam logic [1:0] EVENT_HIGH    = 2'b10;
+    localparam logic [1:0] EVENT_LOW     = 2'b11;
 
 
     logic [6:0] isr_configs_flat [0:7];
