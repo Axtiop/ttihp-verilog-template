@@ -119,9 +119,9 @@ module imem_ram #(
         .A_BIST_MEN  (1'b0),
         .A_BIST_WEN  (1'b0),
         .A_BIST_REN  (1'b0),
-        .A_BIST_ADDR (9'h0),
-        .A_BIST_DIN  (32'h0),
-        .A_BIST_BM   (32'h0)
+        .A_BIST_ADDR (8'h0),
+        .A_BIST_DIN  (16'h0),
+        .A_BIST_BM   (16'h0)
     );
 
     // The SRAM macro provides synchronous read data.

@@ -588,7 +588,7 @@ end
                             end
 
                             DEST_CONF_ISRx: begin
-                                isr_configs[mov_data0[9:7]] = mov_data0[6:0];
+                                isr_configs[mov_data0[9:7]] <= mov_data0[6:0];
                                 isr_shift_on_mov[mov_data0[9:7]] <= 1'b1;
 
                             end 
