@@ -140,14 +140,14 @@ module PIO #(
         if (!rst_ni) begin
 
             // Synchronize our copies with the externally visible OSR.
-            osr0_shadow <= osr0;
-            osr1_shadow <= osr1;
-            osr2_shadow <= osr2;
-            osr3_shadow <= osr3;
-            osr4_shadow <= osr4;
-            osr5_shadow <= osr5;
-            osr6_shadow <= osr6;
-            osr7_shadow <= osr7;
+            osr0_shadow <= 16'h0000;
+            osr1_shadow <= 16'h0000;
+            osr2_shadow <= 16'h0000;
+            osr3_shadow <= 16'h0000;
+            osr4_shadow <= 16'h0000;
+            osr5_shadow <= 16'h0000;
+            osr6_shadow <= 16'h0000;
+            osr7_shadow <= 16'h0000;
 
         end
         else begin
