@@ -58,19 +58,39 @@
   "FP_IO_HLENGTH": 2,
   "FP_IO_VLENGTH": 2,
 
-  "FP_PDN_VPITCH": 38.87,
-
   "//": "Clock",
   "RUN_CTS": 1,
 
   "//": "Don't generate power rings",
   "FP_PDN_MULTILAYER": 0,
+  "FP_PDN_VWIDTH":     2.1,      
+  "FP_PDN_VSPACING":   3.52,    
+  "FP_PDN_VPITCH":     44.96,    
+  "FP_PDN_VOFFSET":    6.15,
+
+"PDN_MACRO_CONNECTIONS": [
+  "top\\.uFSM\\.u_imem\\.i_sram VPWR VGND VDD! VSS!",
+  "top\\.uFSM\\.u_imem\\.i_sram VPWR VGND VDDARRAY! VSS!",
+  "top\\.uFSM\\.u_imem\\.i_sram VPWR VGND VDD! VSS!",
+  "top\\.uFSM\\.u_imem\\.i_sram VPWR VGND VDDARRAY! VSS!"
+],
+
 
   "//": "MAGIC_DEF_LABELS may cause issues with LVS",
   "MAGIC_DEF_LABELS": 0,
 
   "//": "Only export pin area in LEF (without any connected nets)",
   "MAGIC_WRITE_LEF_PINONLY": 1,
+
+  "//": "KDP1965 suggestion: keeps standard cells away from the macro edge, which matters because the SRAM's well edge and the neighbouring cells' wells need a minimum distance.",
+  "FP_MACRO_HORIZONTAL_HALO": 2.0,
+
+   "//": "KDP1965 suggestion: so there is no free layer above the macro and I want the router to have no ideas about crossing it",
+   "ROUTING_OBSTRUCTIONS": [
+    "Metal2 3.36 3.78 238.0 120.0",   
+    "Metal3 3.36 3.78 238.0 120.0",
+    "Metal4 3.36 3.78 238.0 120.0"
+   ],
 
   "MACROS": {
     "RM_IHPSG13_1P_256x16_c2_bm_bist": {
