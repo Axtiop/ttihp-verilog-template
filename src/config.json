@@ -105,7 +105,7 @@
   },
 
   "PDN_MACRO_CONNECTIONS": [
-    "top\\.uFSM\\.u_imem\\.i_sram VPWR VGND VDD! VSS!",
-    "top\\.uFSM\\.u_imem\\.i_sram VPWR VGND VDDARRAY! VSS!"
+    "top\\.uFSM\\.u_imem\\.i_sram POWER GROUND VDD! VSS!",
+    "top\\.uFSM\\.u_imem\\.i_sram POWER GROUND VDDARRAY! VSS!"
   ]
 }
