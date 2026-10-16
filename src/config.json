@@ -68,12 +68,10 @@
   "FP_PDN_VPITCH":     44.96,    
   "FP_PDN_VOFFSET":    6.15,
 
-"PDN_MACRO_CONNECTIONS": [
-  "top\\.uFSM\\.u_imem\\.i_sram VPWR VGND VDD! VSS!",
-  "top\\.uFSM\\.u_imem\\.i_sram VPWR VGND VDDARRAY! VSS!",
-  "top\\.uFSM\\.u_imem\\.i_sram VPWR VGND VDD! VSS!",
-  "top\\.uFSM\\.u_imem\\.i_sram VPWR VGND VDDARRAY! VSS!"
-],
+  "PDN_MACRO_CONNECTIONS": [
+    "top\\.uFSM\\.u_imem\\.i_sram VPWR VGND VDD! VSS!",
+    "top\\.uFSM\\.u_imem\\.i_sram VPWR VGND VDDARRAY! VSS!"
+  ],
 
 
   "//": "MAGIC_DEF_LABELS may cause issues with LVS",
@@ -109,4 +107,3 @@
     }
   }
 }
-
