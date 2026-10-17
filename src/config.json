@@ -39,7 +39,11 @@
 
   "//": "Save some time",
   "RUN_KLAYOUT_XOR": 0,
-  "RUN_KLAYOUT_DRC": 0,
+
+  "RUN_MAGIC_DRC": 0,
+  "ERROR_ON_ILLEGAL_OVERLAPS": 0,
+  "KLAYOUT_DRC_RUNSET": "pdk_dir::libs.tech/klayout/tech/drc/ihp-sg13g2.drc",
+  "RUN_KLAYOUT_DRC": 1,
 
   "//": "Don't put clock buffers on the outputs",
   "DESIGN_REPAIR_BUFFER_OUTPUT_PORTS": 0,
