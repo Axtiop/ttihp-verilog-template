@@ -71,7 +71,8 @@
   "FP_PDN_VSPACING":   3.52,    
   "FP_PDN_VPITCH":     44.96,    
   "FP_PDN_VOFFSET":    6.15,
-
+  "//": "pdn_cfg.tcl is LibreLane's PDN config without the per-macro grid, which has no shapes with this single-layer PDN and makes an unpatched pdngen fail (PDN-0233); the macros get their power from Project.ExtendPowerStripes",
+  "PDN_CFG": "dir::pdn_cfg.tcl",
 
 
 
