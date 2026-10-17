@@ -74,10 +74,6 @@
   "//": "pdn_cfg.tcl is LibreLane's PDN config without the per-macro grid, which has no shapes with this single-layer PDN and makes an unpatched pdngen fail (PDN-0233); the macros get their power from Project.ExtendPowerStripes",
   "PDN_CFG": "dir::pdn_cfg.tcl",
 
-"RUN_IRDROP_REPORT": 0,
-"ERROR_ON_LVS_ERROR": 0,
-"ERROR_ON_MAGIC_DRC": 0,
-
   "//": "MAGIC_DEF_LABELS may cause issues with LVS",
   "MAGIC_DEF_LABELS": 0,
 
@@ -90,8 +86,7 @@
    "//": "KDP1965 suggestion: so there is no free layer above the macro and I want the router to have no ideas about crossing it",
    "ROUTING_OBSTRUCTIONS": [
     "Metal2 3.36 3.78 238.0 120.0",   
-    "Metal3 3.36 3.78 238.0 120.0",
-    "Metal4 3.36 3.78 238.0 120.0"
+    "Metal3 3.36 3.78 238.0 120.0"
    ],
 
   "MACROS": {
