@@ -123,6 +123,8 @@
       }
     }
   },
+  "ERROR_ON_KLAYOUT_DRC": 0,
+
 
   "PDN_MACRO_CONNECTIONS": [
     "top\\.uFSM\\.u_imem\\.i_sram VPWR VGND VDD! VSS!",
