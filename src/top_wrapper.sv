@@ -36,7 +36,7 @@ module tt_um_example (
         .tx (tx),
         .gpio_io (uio_out),
         .hspio_gpio_i (ui_in[5:0]),
-        .hspio_gpio_o (ui_out[5:0])
+        .hspio_gpio_o (uo_out[5:0])
     );
 
 endmodule
