@@ -20,7 +20,8 @@ module SC (
     output logic        error,
 
     // boot state
-    output logic        imem_load
+    output logic        imem_load,
+    output logic        dmem_load
 );
 
     // ============================================================
@@ -122,7 +123,7 @@ module SC (
                 // ------------------------------------------------
                 ST_BOOT: begin
 
-                    if (word_count == 510 && imem_load == 0) begin
+                    if (word_count == 510 && imem_load == 0 && dmem_load == 0) begin
                         // End of boot block
                         next_state = ST_WAIT_EOB;
                     end
@@ -241,6 +242,7 @@ module SC (
             error         <= 1'b0;
 
             imem_load     <= 1'b1;
+            dmem_load     <= 1'b1;
 
         end
         else begin
@@ -289,7 +291,12 @@ module SC (
                         end
                         else begin
                             word_count <= 9'd0;
-                            imem_load <= 1'b0;
+                            if(imem_load == 1'b0) begin
+                                dmem_load <= 1'b0;
+                            end else begin
+                                imem_load <= 1'b0;
+                            end
+                            
                         end
 
 

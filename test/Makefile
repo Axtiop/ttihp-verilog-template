@@ -13,6 +13,9 @@ PROJECT_SOURCES = \
 	./FSM/RM_IHPSG13_1P_core_behavioral_bm_bist.v \
 	./FSM/FSM.sv \
 	./FSM/PIO.sv \
+	./HSPIO/SRAM_HSPIO.sv \
+	./HSPIO/HSPIO.sv \
+	./HSPIO/CONTROL_HSPIO.sv \
     ./FSM/imem_ram.sv \
 	./top_wrapper.sv \
     ./top.sv \

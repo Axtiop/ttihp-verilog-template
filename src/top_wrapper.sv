@@ -20,21 +20,23 @@ module tt_um_example (
   assign uio_oe  = 1;
 
   // List all unused inputs to prevent warnings
-  wire _unused = &{ena, ui_in[7:1],uio_in[7:0], 1'b0};
+  wire _unused = &{ena, ui_in[6],uio_in[7:0], 1'b0};
 
   logic rx;
-  assign rx = ui_in[0];
+  assign rx = ui_in[7];
 
   logic tx;
-  assign uo_out[0] = tx;
-  assign uo_out[7:1] = 0;
+  assign uo_out[7] = tx;
+  assign uo_out[6] = 0;
 
     top top (
         .clk   (clk),
         .rst_ni(rst_n),
         .rx (rx),
         .tx (tx),
-        .gpio_io (uio_out)
+        .gpio_io (uio_out),
+        .hspio_gpio_i (ui_in[5:0]),
+        .hspio_gpio_o (ui_out[5:0])
     );
 
 endmodule

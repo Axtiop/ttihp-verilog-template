@@ -8,6 +8,8 @@ module FSM #(
 
     // I/O
     inout  wire [NumGPIOS-1:0] gpio_io,
+    input  wire [5:0]          hspio_gpio_i,
+    output wire [5:0]          hspio_gpio_o,
 
     // Data
     input logic [7:0]  data_out,
@@ -18,7 +20,8 @@ module FSM #(
 
     // Number of received words, saturating at 512
     input logic [8:0]  word_count,
-    input logic        imem_load
+    input logic        imem_load,
+    input logic        dmem_load
 );
 
     // Stop everything while boot is not finished
@@ -115,6 +118,19 @@ assign imem_wr_byte_en = word_count[0];
 assign imem_wr_addr    = word_count[8:1];
 assign imem_wr_data    = data_out;
 
+
+// -----------------------------------------------------------
+// HSPIO write interface 
+// -----------------------------------------------------------
+logic sram_wr_en;
+logic sram_wr_byte_en;
+logic [7:0] sram_wr_addr;
+logic [7:0] sram_wr_data;
+
+assign sram_wr_en      = !boot_finished && data_valid && !imem_load && !dmem_load;
+assign sram_wr_byte_en = word_count[0];
+assign sram_wr_addr    = word_count[8:1];
+assign sram_wr_data    = data_out;
 
 // ------------------------------------------------------------
 // IMEM read interface
@@ -309,6 +325,14 @@ end
     localparam logic [4:0] DEST_CONF_ISRx = 5'd18;
     localparam logic [4:0] DEST_RGP   = 5'd19;
 
+    localparam logic [4:0] DEST_HSPIO = 5'd30;
+
+    logic [4:0] hspio_reg;
+    logic transfer_data ;
+    logic clk_out1_en;
+    logic clk_out1_pol;
+    logic clk_out2_en;
+    logic clk_out2_pol;
 
     // =========================================================================
     // Sequential CPU
@@ -340,6 +364,8 @@ end
             rgp         <= 16'h0000;
             wait_count  <= 8'h00;
             isr_shift_on_mov <= 8'h00;
+
+            hspio_reg <= 5'd0;
 
         end
         else begin
@@ -597,6 +623,10 @@ end
                                 rgp <= mov_data0;
                             end
 
+                            DEST_HSPIO: begin 
+                                hspio_reg <= mov_data0[4:0];
+                            end 
+
                             default: begin
                                 // Reserved destination.
                             end
@@ -663,6 +693,46 @@ end
         // ISR status
         .isr_full   (isr_full)
     );
+
+
+
+    assign transfer_data = hspio_reg[0];
+    assign clk_out1_en = hspio_reg[1];
+    assign clk_out1_pol = hspio_reg[2];
+    assign clk_out2_en = hspio_reg[3];
+    assign clk_out2_pol = hspio_reg[4];
+
+    CONTROL_HSPIO u_CONTROL_HSPIO(
+    // Clock and reset
+    .clk       (clk),
+    .rst_ni    (rst_ni),
+
+    // Write interface
+    .wr_mem_i     (sram_wr_en),
+    .wr_byte_en_i (sram_wr_byte_en),
+    .wr_addr_i    (sram_wr_addr),
+    .wr_data_i    (sram_wr_data),
+
+    // Transfer Enable
+    .transfer_data (transfer_data), // TODO put back to variable.
+
+    // Input interfaces
+    .clk_in1    (hspio_gpio_i[5]),
+    .clk_in2    (hspio_gpio_i[4]),
+
+    // Output interfaces
+    .clk_out1_en     (clk_out1_en),
+    .clk_out2_en     (clk_out2_en),
+    .clk_out1_pol    (clk_out1_pol),
+    .clk_out2_pol    (clk_out2_pol),
+
+    .clk_out1    (hspio_gpio_o[5]),
+    .clk_out2    (hspio_gpio_o[4]),
+
+    // GPIOs
+    .gpio_i    (hspio_gpio_i[3:0]),
+    .gpio_o    (hspio_gpio_o[3:0])
+);
 
 
 endmodule
