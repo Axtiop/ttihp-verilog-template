@@ -33,8 +33,10 @@ module PIO #(
     input logic [7:0] isr_shift_on_mov,
 
     // I/O
-    inout  wire [NumGPIOS-1:0] gpio_io,
+    input  wire  [NumGPIOS-1:0] gpio_i,
     output logic [NumGPIOS-1:0] gpio_io_2r,
+    output logic [NumGPIOS-1:0] gpio_oe,
+    output logic [NumGPIOS-1:0] gpio_o,
 
     // ISR status
     output logic [7:0] isr_full
@@ -60,20 +62,20 @@ module PIO #(
     end
 
     logic [7:0] gpio_io_r;
+    logic [7:0] gpio_io;
 
     logic [7:0] gpio_out;
     logic [7:0] gpio_out_r;
     logic [7:0] gpio_out_2r;
-    logic [7:0] gpio_oe;
 
     assign gpio_oe = ~conf0[7:0];
-
+    assign gpio_o  = gpio_out_2r;
     // GPIO output
     genvar k;
     generate
         for (k = 0; k < 8; k++) begin
             assign gpio_io[k] =
-                gpio_oe[k] ? gpio_out_2r[k] : 1'bz;
+                gpio_oe[k] ? gpio_out_2r[k] : gpio_i[k];
         end
     endgenerate
 

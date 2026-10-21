@@ -11,20 +11,22 @@ module top #(
     output logic tx,
 
     // I/Os
-    inout wire [NumGPIOS-1:0] gpio_io,
+    input  wire [NumGPIOS-1:0] gpio_i,
+    output wire [NumGPIOS-1:0] gpio_oe,
+    output wire [NumGPIOS-1:0] gpio_o,
     input  wire [5:0] hspio_gpio_i,
     output wire [5:0] hspio_gpio_o
 );
-
+    
     // ------------------------------------------------------------------------
     // System controller
     // ------------------------------------------------------------------------
-
-    logic [7:0] data_out;
+    
+    logic [7:0]  data_out;
     logic       data_valid;
 
     // Boot status
-    logic boot_finished;
+    logic        boot_finished;
 
     // Number of received words, saturating at 511
     logic [8:0]  word_count;
@@ -32,7 +34,7 @@ module top #(
     logic        dmem_load;
 
     // Error output
-    logic error;
+    logic        error;
 
     SC u_SC (
         .clk   (clk),
@@ -50,19 +52,20 @@ module top #(
         .imem_load (imem_load),
         .dmem_load (dmem_load)
     );
-
+    
     // ------------------------------------------------------------------------
     // FSM
     // ------------------------------------------------------------------------
-    
     FSM uFSM (
         .clk    (clk),
         .rst_ni (rst_ni),
-        .gpio_io(gpio_io),
+        .gpio_i (gpio_i),
+        .gpio_oe (gpio_oe),
+        .gpio_o (gpio_o),
         .hspio_gpio_i (hspio_gpio_i),
         .hspio_gpio_o (hspio_gpio_o),
-
-        // Boot
+        
+        // Boot 
         .data_out (data_out),
         .data_valid (data_valid),
 
@@ -71,6 +74,6 @@ module top #(
         .imem_load (imem_load),
         .dmem_load (dmem_load)
     );
-    
+
 
 endmodule

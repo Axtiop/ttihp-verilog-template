@@ -7,7 +7,9 @@ module FSM #(
     input  logic rst_ni,
 
     // I/O
-    inout  wire [NumGPIOS-1:0] gpio_io,
+    input  wire [NumGPIOS-1:0] gpio_i,
+    output wire [NumGPIOS-1:0] gpio_oe,
+    output wire [NumGPIOS-1:0] gpio_o,
     input  wire [5:0]          hspio_gpio_i,
     output wire [5:0]          hspio_gpio_o,
 
@@ -687,8 +689,10 @@ end
         .isr_shift_on_mov (isr_shift_on_mov),
 
         // I/O
-        .gpio_io    (gpio_io),
         .gpio_io_2r (gpio_io_2r),
+        .gpio_oe    (gpio_oe),
+        .gpio_o     (gpio_o),
+        .gpio_i     (gpio_i),
 
         // ISR status
         .isr_full   (isr_full)
