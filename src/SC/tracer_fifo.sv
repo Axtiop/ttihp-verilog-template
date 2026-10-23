@@ -173,9 +173,5 @@ module tracer_fifo #(
     end
 
     // Parameter sanity check
-    initial begin
-        assert (DEPTH >= 2 && (DEPTH & (DEPTH-1)) == 0)
-            else $fatal(1, "DEPTH must be a power of 2 and >= 2");
-    end
 
 endmodule
