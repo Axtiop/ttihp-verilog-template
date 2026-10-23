@@ -104,10 +104,9 @@ module PIO #(
     logic [15:0] osr7_shadow;
 
     // Number of valid bits currently stored in ISR.
-    logic [4:0] isr_count;
-
-    logic [7:0] gpio_io_d;
+    logic [7:0]  gpio_io_d;
     logic [15:0] isr [8];
+    logic [3:0]  isr_counter [8];
 
     assign isr0 = isr[0];
     assign isr1 = isr[1];
@@ -133,6 +132,21 @@ module PIO #(
     end
 
 
+    // -----------------------------------------------------------
+    // Logic for always full combinatorial to be faster
+    // -----------------------------------------------------------
+    // TODO: Verify the timing in the case that isr changes on the next clock cycle !!!
+    always_comb begin
+        for (int j = 0; j < 8; j++) begin
+            if (isr_counter[j] == 4'hf) begin 
+                isr_full[j] = 1'b1;
+            end
+            else begin
+                isr_full[j] = 1'b0;
+            end
+        end
+    end
+ 
     // ------------------------------------------------------------
     // Sequential logic output
     // ------------------------------------------------------------
@@ -217,13 +231,11 @@ always_ff @(posedge clk or negedge rst_ni) begin
         // Reset ISR shift registers
         for (int i = 0; i < 8; i++) begin
             isr[i] <= 16'h0000;
+            isr_counter[i] <= 4'h00;
         end
 
         // Previous GPIO state, used for edge detection
         gpio_io_d <= 8'h00;
-
-        isr_count <= 5'd0;
-        isr_full  <= 8'h00;
 
     end
     else begin
@@ -254,6 +266,7 @@ always_ff @(posedge clk or negedge rst_ni) begin
                         isr[i][14:0],
                         gpio_io_d[isr_configs_flat[i][6:4]]
                     };
+                    isr_counter[i] <= isr_counter[i] + 1;
 
                 end
 
@@ -276,6 +289,7 @@ always_ff @(posedge clk or negedge rst_ni) begin
                                     isr[i][14:0],
                                     gpio_io_d[i]
                                 };
+                                isr_counter[i] <= isr_counter[i] + 1;
 
                             end
 
@@ -294,6 +308,7 @@ always_ff @(posedge clk or negedge rst_ni) begin
                                     isr[i][14:0],
                                     gpio_io_d[i]
                                 };
+                                isr_counter[i] <= isr_counter[i] + 1;
 
                             end
 
@@ -311,6 +326,7 @@ always_ff @(posedge clk or negedge rst_ni) begin
                                     isr[i][14:0],
                                     gpio_io_d[i]
                                 };
+                                isr_counter[i] <= isr_counter[i] + 1;
 
                             end
 
@@ -328,6 +344,7 @@ always_ff @(posedge clk or negedge rst_ni) begin
                                     isr[i][14:0],
                                     gpio_io_d[i]
                                 };
+                                isr_counter[i] <= isr_counter[i] + 1;
 
                             end
 
@@ -349,6 +366,7 @@ always_ff @(posedge clk or negedge rst_ni) begin
                             isr[i][14:0],
                             gpio_io_d[i]
                         };
+                        isr_counter[i] <= isr_counter[i] + 1;
                     end 
 
                 end

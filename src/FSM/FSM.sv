@@ -23,7 +23,10 @@ module FSM #(
     // Number of received words, saturating at 512
     input logic [8:0]  word_count,
     input logic        imem_load,
-    input logic        dmem_load
+    input logic        dmem_load,
+
+    output logic [127:0] isr_regs,
+    output logic [7:0]   isr_push
 );
 
     // Stop everything while boot is not finished
@@ -83,7 +86,8 @@ module FSM #(
     logic [15:0] isr5;
     logic [15:0] isr6;
     logic [15:0] isr7;
-    logic [7:0] isr_full; // TODO: link that to something.    
+    
+    assign isr_regs = {isr7, isr6, isr5, isr4, isr3, isr2, isr1, isr0};
 
     // Other registers
     logic [15:0] conf0;
@@ -695,7 +699,7 @@ end
         .gpio_i     (gpio_i),
 
         // ISR status
-        .isr_full   (isr_full)
+        .isr_full   (isr_push)
     );
 
 
@@ -718,7 +722,7 @@ end
     .wr_data_i    (sram_wr_data),
 
     // Transfer Enable
-    .transfer_data (transfer_data), // TODO put back to variable.
+    .transfer_data (1'b1), // TODO put back to variable.
 
     // Input interfaces
     .clk_in1    (hspio_gpio_i[5]),

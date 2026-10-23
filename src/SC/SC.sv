@@ -21,7 +21,11 @@ module SC (
 
     // boot state
     output logic        imem_load,
-    output logic        dmem_load
+    output logic        dmem_load,
+
+    // isr traces
+    input logic [127:0] isr_regs,
+    input logic [7:0]   isr_push
 );
 
     // ============================================================
@@ -47,6 +51,9 @@ module SC (
 
     logic [7:0] uart_data;
     logic       uart_data_valid;
+    logic [7:0] uart_data_out;
+    logic       uart_data_out_valid;
+    logic       tx_ongoing;
 
     logic rx_r;
     logic rx_2r;
@@ -64,19 +71,27 @@ module SC (
     
     uart uart_inst (
         .clk        (clk),
-        .rst_ni      (rst_ni),
+        .rst_ni     (rst_ni),
         .rx         (rx_2r),
         .tx         (tx),
+
+        .tx_ongoing    (tx_ongoing),
+        .uart_data_out (uart_data_out),
+        .uart_data_out_valid (uart_data_out_valid),
 
         .uart_data   (uart_data),
         .uart_data_valid (uart_data_valid)
     );
-    
 
-    // Temporary assignments until UART is implemented.
-    //
-    // Remove these when the uart module is instantiated.
-    //assign tx              = 1'b1;
+    tracer_fifo tracer_fifo_inst (
+        .clk           (clk),
+        .rst_ni        (rst_ni),
+        .isr_regs      (isr_regs),
+        .isr_push      (isr_push),
+        .tx_ongoing    (tx_ongoing),
+        .uart_data_out (uart_data_out),
+        .uart_data_out_valid (uart_data_out_valid)
+    );
 
 
     // ============================================================

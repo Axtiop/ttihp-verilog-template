@@ -33,6 +33,10 @@ module top #(
     logic        imem_load;
     logic        dmem_load;
 
+    // ISR traces
+    logic [127:0] isr_regs;
+    logic [7:0]   isr_push;
+
     // Error output
     logic        error;
 
@@ -50,7 +54,10 @@ module top #(
         .error (error),
 
         .imem_load (imem_load),
-        .dmem_load (dmem_load)
+        .dmem_load (dmem_load),
+
+        .isr_regs   (isr_regs),
+        .isr_push   (isr_push)
     );
     
     // ------------------------------------------------------------------------
@@ -72,7 +79,11 @@ module top #(
         .boot_finished (boot_finished),
         .word_count (word_count),
         .imem_load (imem_load),
-        .dmem_load (dmem_load)
+        .dmem_load (dmem_load),
+
+        // Traces
+        .isr_regs   (isr_regs),
+        .isr_push   (isr_push)
     );
 
 

@@ -25,6 +25,7 @@ project:
     - "HSPIO/CONTROL_HSPIO.sv"
     - "FSM/FSM.sv"
     - "SC/uart.sv"
+    - "SC/tracer_fifo.sv"
     - "SC/SC.sv"
     - "top.sv"
     - "top_wrapper.sv"
