@@ -7,7 +7,7 @@ module SRAM_HSPIO (
     input  logic        wr_mem_i,
     input  logic        wr_byte_en_i, // TODO: The wr_data_i is not 16bits here but 7 bits because we load 8bits by 8 bits into the write, so you need to add a small buffer.
     input  logic [7:0]  wr_addr_i,
-    input  logic [7:0] wr_data_i,
+    input  logic [7:0]  wr_data_i,
 
     // Read interface
     output logic        data_ready_o,

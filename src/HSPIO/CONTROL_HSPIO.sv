@@ -11,6 +11,8 @@ module CONTROL_HSPIO (
 
     // Transfer Enable
     input logic transfer_data,
+    input logic [7:0] hspio_add_start,
+    input logic [7:0] hspio_add_end,
 
     // Input interfaces
     input logic clk_in1,
@@ -59,6 +61,8 @@ module CONTROL_HSPIO (
 
     // Registers
     .transfer_data (transfer_data),
+    .hspio_add_start (hspio_add_start),
+    .hspio_add_end (hspio_add_end),
     .data_in       (data_in),
     .data_addr     (data_addr),
     .data_read_o   (data_read),

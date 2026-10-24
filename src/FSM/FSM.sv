@@ -185,7 +185,7 @@ always_ff @(posedge clk or negedge rst_ni) begin
     end
     else if (!boot_finished && data_valid) begin
 
-        if (!imem_load) begin
+        if (!imem_load && dmem_load) begin
             dmem[word_count[8:4]]
                 [word_count[3:0]*8 +: 8] <= data_out;
         end
@@ -331,9 +331,13 @@ end
     localparam logic [4:0] DEST_CONF_ISRx = 5'd18;
     localparam logic [4:0] DEST_RGP   = 5'd19;
 
+    localparam logic [4:0] DEST_HSPIO_START = 5'd28;
+    localparam logic [4:0] DEST_HSPIO_END   = 5'd29;
     localparam logic [4:0] DEST_HSPIO = 5'd30;
 
     logic [4:0] hspio_reg;
+    logic [7:0] hspio_add_start;
+    logic [7:0] hspio_add_end;
     logic transfer_data ;
     logic clk_out1_en;
     logic clk_out1_pol;
@@ -371,6 +375,8 @@ end
             wait_count  <= 8'h00;
             isr_shift_on_mov <= 8'h00;
 
+            hspio_add_start <= 8'h00;
+            hspio_add_end <= 8'h00;
             hspio_reg <= 5'd0;
 
         end
@@ -633,6 +639,20 @@ end
                                 hspio_reg <= mov_data0[4:0];
                             end 
 
+                            DEST_HSPIO_START: begin 
+                                if (transfer_data == 1'b0) begin
+                                    hspio_add_start <= mov_data0[7:0];
+                                end 
+                            end 
+
+                            DEST_HSPIO_END: begin 
+                                if (transfer_data == 1'b0) begin
+                                    hspio_add_end <= mov_data0[7:0];
+                                end 
+                            end
+
+
+
                             default: begin
                                 // Reserved destination.
                             end
@@ -702,8 +722,6 @@ end
         .isr_full   (isr_push)
     );
 
-
-
     assign transfer_data = hspio_reg[0];
     assign clk_out1_en = hspio_reg[1];
     assign clk_out1_pol = hspio_reg[2];
@@ -722,8 +740,9 @@ end
     .wr_data_i    (sram_wr_data),
 
     // Transfer Enable
-    .transfer_data (1'b1), // TODO put back to variable.
-
+    .transfer_data (transfer_data),
+    .hspio_add_start (hspio_add_start),
+    .hspio_add_end   (hspio_add_end),
     // Input interfaces
     .clk_in1    (hspio_gpio_i[5]),
     .clk_in2    (hspio_gpio_i[4]),
@@ -741,6 +760,5 @@ end
     .gpio_i    (hspio_gpio_i[3:0]),
     .gpio_o    (hspio_gpio_o[3:0])
 );
-
 
 endmodule

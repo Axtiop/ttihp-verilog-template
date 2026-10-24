@@ -4,6 +4,8 @@ module HSPIO (
 
     // Registers
     input  logic        transfer_data,
+    input  logic [7:0]  hspio_add_start,
+    input  logic [7:0]  hspio_add_end,
     input  logic [63:0] data_in,
     output logic [7:0]  data_addr,
     output logic        data_read_o,
@@ -50,6 +52,10 @@ module HSPIO (
     logic data_ready_sync1;
     logic data_ready_sync;
 
+    // Addr start synchronizers
+    logic [7:0] hspio_add_start_sync1;
+    logic [7:0] hspio_add_start_sync;
+
     // --------------------------------------------------
     // CDC synchronizers
     // clk_in2 is the destination clock for these signals.
@@ -65,6 +71,10 @@ module HSPIO (
 
             data_ready_sync1    <= 1'b0;
             data_ready_sync     <= 1'b0;
+
+            hspio_add_start_sync1 <= 8'h00;
+            hspio_add_start_sync  <= 8'h00;
+
         end else begin
             // Double synchronizer for transfer_data
             transfer_data_sync1 <= transfer_data;
@@ -77,6 +87,9 @@ module HSPIO (
             // Double synchronizer for data_ready_i
             data_ready_sync1 <= data_ready_i;
             data_ready_sync  <= data_ready_sync1;
+
+            hspio_add_start_sync1 <= hspio_add_start;
+            hspio_add_start_sync  <= hspio_add_start_sync1;
         end
     end
 
@@ -113,6 +126,21 @@ module HSPIO (
                     bit_counter <= bit_counter + 1'b1;
                 end
 
+                if (8'h00 == hspio_add_end && data_addr == hspio_add_end) begin
+                    data_addr <= hspio_add_start_sync; // wrap around if end address is set to 0b00.
+                end 
+                else if (data_addr == hspio_add_end) begin 
+                    // Stall everything if you reached the end.
+                    data_addr <= data_addr;
+                    gpio_o[0] <= 1'b1;
+                    gpio_o[1] <= 1'b1;
+                    gpio_o[2] <= 1'b1;
+                    gpio_o[3] <= 1'b1;
+                end
+
+            end
+            else begin
+                data_addr <= hspio_add_start_sync;
             end
         end
     end
