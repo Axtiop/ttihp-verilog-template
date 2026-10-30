@@ -1,6 +1,6 @@
 module uart #(
     parameter int CLK_FREQ  = 25_000_000,
-    parameter int BAUD_RATE = 115_200
+    parameter int BAUD_RATE = 460_800
 ) (
     input  logic       clk,
     input  logic       rst_ni,

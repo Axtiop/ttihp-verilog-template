@@ -21,14 +21,9 @@ module tracer_fifo #(
     // ------------------------------------------------------------------
     // Rising edge detection on isr_push
     // ------------------------------------------------------------------
-    logic [NF-1:0] push_q, push_rise;
+    logic [NF-1:0] push_rise;
 
-    always_ff @(posedge clk or negedge rst_ni) begin
-        if (!rst_ni) push_q <= '0;
-        else         push_q <= isr_push;
-    end
-
-    assign push_rise = isr_push & ~push_q;
+    assign push_rise = isr_push;
 
     // ------------------------------------------------------------------
     // 8 small flip-flop based FIFOs (16-bit data + "loss after me" bit)

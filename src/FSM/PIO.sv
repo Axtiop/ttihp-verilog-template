@@ -31,6 +31,8 @@ module PIO #(
     input  logic [15:0] conf1,
     input  logic [55:0] isr_configs,
     input logic [7:0] isr_shift_on_mov,
+    input logic [7:0] isr_cpu_clear,
+    input logic [7:0] isr_cpu_push,
 
     // I/O
     input  wire  [NumGPIOS-1:0] gpio_i,
@@ -135,15 +137,22 @@ module PIO #(
     // -----------------------------------------------------------
     // Logic for always full combinatorial to be faster
     // -----------------------------------------------------------
-    // TODO: Verify the timing in the case that isr changes on the next clock cycle !!!
-    always_comb begin
-        for (int j = 0; j < 8; j++) begin
-            if (isr_counter[j] == 4'hf) begin 
-                isr_full[j] = 1'b1;
+    logic [7:0] isr_full_r;
+    always_ff @(posedge clk or negedge rst_ni) begin
+        if (!rst_ni) begin
+            isr_full   <= 8'h00;
+            isr_full_r <= 8'h00;
+        end
+        else begin
+            for (int j = 0; j < 8; j++) begin
+                if (isr_counter[j] == 4'hf && isr_full_r[j] == 1'b0) begin 
+                    isr_full_r[j] <= 1'b1;
+                end
+                else begin
+                    isr_full_r[j] <= 1'b0;
+                end
             end
-            else begin
-                isr_full[j] = 1'b0;
-            end
+            isr_full <= isr_full_r | isr_cpu_push;
         end
     end
  
@@ -376,6 +385,10 @@ always_ff @(posedge clk or negedge rst_ni) begin
                 end
 
             endcase
+
+            if(isr_cpu_clear[i]) begin
+                isr[i] <= 16'h0000;
+            end
 
         end
 

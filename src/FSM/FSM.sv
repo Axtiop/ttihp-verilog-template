@@ -89,6 +89,9 @@ module FSM #(
     
     assign isr_regs = {isr7, isr6, isr5, isr4, isr3, isr2, isr1, isr0};
 
+    logic [7:0] isr_cpu_clear;
+    logic [7:0] isr_cpu_push;
+
     // Other registers
     logic [15:0] conf0;
     logic [15:0] conf1;
@@ -244,8 +247,6 @@ end
     assign wait_src = wait_active ? wait_src_r : instruction[9:8];
     assign wait_imm = wait_active ? wait_imm_r : instruction[7:0];
 
-
-
     // -------------------------------------------------------------------------
     // MOV fields
     //
@@ -379,6 +380,9 @@ end
             hspio_add_end <= 8'h00;
             hspio_reg <= 5'd0;
 
+            isr_cpu_clear <= 8'h00;
+            isr_cpu_push  <= 8'h00;
+
         end
         else begin
 
@@ -398,6 +402,8 @@ end
                 wait_imm_r <= wait_imm;
             end
 
+            isr_cpu_clear    <= 8'h00; // One cycle long
+            isr_cpu_push     <= 8'h00; // One cycle long
 
             case (opcode)
 
@@ -629,6 +635,9 @@ end
                                 isr_configs[mov_data0[9:7]] <= mov_data0[6:0];
                                 isr_shift_on_mov[mov_data0[9:7]] <= 1'b1;
 
+                                isr_cpu_clear[mov_data0[9:7]] <= mov_data0[10];
+                                isr_cpu_push[mov_data0[9:7]]  <= mov_data0[11];
+
                             end 
 
                             DEST_RGP: begin
@@ -711,6 +720,8 @@ end
         .conf1      (conf1),
         .isr_configs (isr_configs_packed),
         .isr_shift_on_mov (isr_shift_on_mov),
+        .isr_cpu_clear (isr_cpu_clear),
+        .isr_cpu_push  (isr_cpu_push),
 
         // I/O
         .gpio_io_2r (gpio_io_2r),
