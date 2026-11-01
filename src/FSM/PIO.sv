@@ -389,11 +389,8 @@ always_ff @(posedge clk or negedge rst_ni) begin
             if(isr_cpu_clear[i]) begin
                 isr[i] <= 16'h0000;
             end
-
         end
-
     end
-
 end
 
 

@@ -13,7 +13,10 @@ module SRAM_HSPIO (
     output logic        data_ready_o,
     input  logic        data_read_i,
     input  logic [7:0]  data_addr_i,
-    output logic [63:0] data_out_o
+    output logic [63:0] data_out1_o,
+    output logic [63:0] data_out2_o,
+    input  logic        sram_buffer_sel_o
+
 );
 
 logic [7:0] write_buffer;
@@ -38,22 +41,34 @@ end
 
     (* ASYNC_REG = "TRUE" *) logic [7:0] data_addr_meta;
     (* ASYNC_REG = "TRUE" *) logic [7:0] data_addr_sync;
+    logic target_buffer_sel;
+    logic active_buffer_sel_meta;
+    logic        read_request;
+    logic data_read_sync_d;
 
     always_ff @(posedge clk or negedge rst_ni) begin
         if (!rst_ni) begin
-            data_read_meta <= 1'b0;
-            data_read_sync <= 1'b0;
-            data_addr_meta <= 8'h00;
-            data_addr_sync <= 8'h00;
-        end else begin
-            data_read_meta <= data_read_i;
-            data_read_sync <= data_read_meta;
+            data_read_meta   <= 1'b0;
+            data_read_sync   <= 1'b0;
+            data_read_sync_d <= 1'b0;
 
-            data_addr_meta <= data_addr_i;
-            data_addr_sync <= data_addr_meta;
+            data_addr_meta   <= 8'h00;
+            data_addr_sync   <= 8'h00;
+            target_buffer_sel <= 1'b0;
+            active_buffer_sel_meta <= 1'b0;
+        end else begin
+            data_read_meta   <= data_read_i;
+            data_read_sync   <= data_read_meta;
+            data_read_sync_d <= data_read_sync;
+
+            data_addr_meta   <= data_addr_i;
+            data_addr_sync   <= data_addr_meta;
+
+            active_buffer_sel_meta <= sram_buffer_sel_o;
+            target_buffer_sel <= active_buffer_sel_meta;
         end
     end
-
+    assign read_request = data_read_sync & ~data_read_sync_d;
     // ------------------------------------------------------------
     // SRAM signals
     // ------------------------------------------------------------
@@ -103,6 +118,7 @@ end
             sram_din  = {wr_data_i, write_buffer};
         end else begin
             case (state)
+
                 READ_0: begin
                     sram_ren  = 1'b1;
                     sram_addr = read_base_addr;
@@ -124,8 +140,9 @@ end
                 end
 
                 default: begin
-                    sram_ren  = 1'b0;
+                    sram_ren = 1'b0;
                 end
+
             endcase
         end
     end
@@ -136,68 +153,77 @@ end
 
     always_ff @(posedge clk or negedge rst_ni) begin
         if (!rst_ni) begin
-            state          <= IDLE;
-            read_base_addr <= 8'h00;
-            read_buffer    <= 64'h0;
-            data_out_o     <= 64'h0;
-            data_ready_o   <= 1'b0;
+            state             <= IDLE;
+            read_base_addr    <= 8'h00;
+            read_buffer       <= 64'h0;
+            data_out1_o       <= 64'h0;
+            data_out2_o       <= 64'h0;
+            data_ready_o      <= 1'b0;
+            
+
         end else begin
             data_ready_o <= 1'b0;
 
             // Writes have priority over reads.
-            // The read controller pauses while a write is requested.
             if (wr_mem_i) begin
                 state <= state;
             end else begin
+
                 case (state)
 
                     IDLE: begin
-                        if (!data_read_sync) begin
+                        if (read_request) begin
+                            // Capture the base address for this block.
                             read_base_addr <= data_addr_sync;
                             state <= READ_0;
                         end
                     end
 
-                    // Issue read request for word 0.
+                    // SRAM read word 0: base + 0.
                     READ_0: begin
                         state <= READ_1;
                     end
 
-                    // Capture word 0; word 1 is requested concurrently.
+                    // Capture word 0; request word 1.
                     READ_1: begin
                         read_buffer[15:0] <= sram_dout;
                         state <= READ_2;
                     end
 
-                    // Capture word 1; word 2 is requested concurrently.
+                    // Capture word 1; request word 2.
                     READ_2: begin
                         read_buffer[31:16] <= sram_dout;
                         state <= READ_3;
                     end
 
-                    // Capture word 2; word 3 is requested concurrently.
+                    // Capture word 2; request word 3.
                     READ_3: begin
                         read_buffer[47:32] <= sram_dout;
                         state <= READ_LAST;
                     end
 
-                    // Capture the final word and publish all 64 bits.
+                    // Capture word 3 and publish the completed buffer.
                     READ_LAST: begin
-                        read_buffer[63:48] <= sram_dout;
 
-                        data_out_o <= {
-                            sram_dout,
-                            read_buffer[47:0]
-                        };
+                        if (target_buffer_sel == 1'b0) begin
+                            data_out1_o <= {
+                                sram_dout,
+                                read_buffer[47:0]
+                            };
+                        end else begin
+                            data_out2_o <= {
+                                sram_dout,
+                                read_buffer[47:0]
+                            };
+                        end
 
                         data_ready_o <= 1'b1;
                         state <= DONE;
                     end
 
                     DONE: begin
-                        // Keep data_out_o stable until the request
-                        // is acknowledged or released.
-                        if (data_read_sync) begin
+                        // Wait for the next request.
+                        if (!data_read_sync) begin
                             state <= IDLE;
                         end
                     end

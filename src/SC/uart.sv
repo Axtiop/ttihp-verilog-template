@@ -1,5 +1,5 @@
 module uart #(
-    parameter int CLK_FREQ  = 25_000_000,
+    parameter int CLK_FREQ  = 50_000_000,
     parameter int BAUD_RATE = 460_800
 ) (
     input  logic       clk,

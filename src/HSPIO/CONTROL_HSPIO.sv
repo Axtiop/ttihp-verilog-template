@@ -35,7 +35,10 @@ module CONTROL_HSPIO (
     logic data_ready;
     logic [7:0] data_addr;
     logic data_read;
-    logic [63:0] data_in;
+    logic [63:0] data_in1;
+    logic [63:0] data_in2;
+    logic sram_buffer_sel_o;
+
 
  // IHP RAM MACRO of sixe 256x16.
    SRAM_HSPIO u_SRAM_HSPIO(
@@ -53,7 +56,9 @@ module CONTROL_HSPIO (
     .data_ready_o  (data_ready),
     .data_read_i   (data_read),
     .data_addr_i   (data_addr),
-    .data_out_o    (data_in)
+    .data_out1_o    (data_in1),
+    .data_out2_o    (data_in2),
+    .sram_buffer_sel_o (sram_buffer_sel_o)
 );
 
    HSPIO u_HSPIO (
@@ -63,10 +68,12 @@ module CONTROL_HSPIO (
     .transfer_data (transfer_data),
     .hspio_add_start (hspio_add_start),
     .hspio_add_end (hspio_add_end),
-    .data_in       (data_in),
+    .data_in1      (data_in1),
+    .data_in2      (data_in2),
     .data_addr     (data_addr),
     .data_read_o   (data_read),
     .data_ready_i  (data_ready),
+    .sram_buffer_sel_o (sram_buffer_sel_o),
 
     // I/O
     .clk_in1       (clk_in1),
