@@ -27,8 +27,7 @@ module PIO #(
     output logic [15:0] isr6,
     output logic [15:0] isr7,
 
-    input  logic [15:0] conf0,
-    input  logic [15:0] conf1,
+    input  logic [7:0]  conf0,
     input  logic [55:0] isr_configs,
     input logic [7:0] isr_shift_on_mov,
     input logic [7:0] isr_cpu_clear,

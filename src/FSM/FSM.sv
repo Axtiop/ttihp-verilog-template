@@ -10,8 +10,8 @@ module FSM #(
     input  wire [NumGPIOS-1:0] gpio_i,
     output wire [NumGPIOS-1:0] gpio_oe,
     output wire [NumGPIOS-1:0] gpio_o,
-    input  wire [5:0]          hspio_gpio_i,
-    output wire [5:0]          hspio_gpio_o,
+    input  wire                clk_in1,
+    output wire [4:0]          hspio_gpio_o,
 
     // Data
     input logic [7:0]  data_out,
@@ -26,7 +26,22 @@ module FSM #(
     input logic        dmem_load,
 
     output logic [127:0] isr_regs,
-    output logic [7:0]   isr_push
+    output logic [7:0]   isr_push,
+
+    output logic [7:0] and_mask_o,
+    output logic [7:0] or_mask_o,
+    output logic [7:0] xor_mask_o,
+
+    output logic [7:0] mask_o,          // bit-select for modes 01..11 (1 = affected)
+    output logic [7:0] rpc_trigger_o,   // RPC value that triggers injection
+    output logic [7:0] current_rpc_o,   // current RPC
+    output logic [7:0] level_o,         // forced value (mode 01), corruption probability /256 (mode 11)
+    output logic [3:0] jitter_count_o,   // delay in cycles (mode 10), burst length-1 (mode 11)
+    output logic       en_error_injection_o,
+
+    input logic [4:0] error_inject_addr_i,
+    input logic [7:0] error_inject_data_i,
+    input logic       error_inject_valid_i
 );
 
     // Stop everything while boot is not finished
@@ -93,7 +108,7 @@ module FSM #(
     logic [7:0] isr_cpu_push;
 
     // Other registers
-    logic [15:0] conf0;
+    logic [7:0]  conf0;
     logic [15:0] conf1;
     logic [15:0] rgp;
 
@@ -147,6 +162,7 @@ assign sram_wr_data    = data_out;
 
 assign imem_rd_en   = boot_finished;
 assign imem_rd_addr = pc;
+assign current_rpc_o = pc;
 
 assign instruction = imem_rdata;
 
@@ -332,18 +348,25 @@ end
     localparam logic [4:0] DEST_CONF_ISRx = 5'd18;
     localparam logic [4:0] DEST_RGP   = 5'd19;
 
+    localparam logic [4:0] DEST_AND_MASK = 5'd21;
+    localparam logic [4:0] DEST_OR_MASK  = 5'd22;
+    localparam logic [4:0] DEST_XOR_MASK = 5'd23;
+    localparam logic [4:0] DEST_MASK     = 5'd24;
+    localparam logic [4:0] DEST_RPC      = 5'd25;
+    localparam logic [4:0] DEST_LEVEL    = 5'd26;
+    localparam logic [4:0] DEST_JITTER   = 5'd27;
+
     localparam logic [4:0] DEST_HSPIO_START = 5'd28;
     localparam logic [4:0] DEST_HSPIO_END   = 5'd29;
     localparam logic [4:0] DEST_HSPIO = 5'd30;
 
-    logic [4:0] hspio_reg;
+    logic [2:0] hspio_reg;
     logic [7:0] hspio_add_start;
     logic [7:0] hspio_add_end;
-    logic transfer_data ;
+    logic transfer_data_out;
     logic clk_out1_en;
     logic clk_out1_pol;
-    logic clk_out2_en;
-    logic clk_out2_pol;
+
 
     // =========================================================================
     // Sequential CPU
@@ -367,7 +390,7 @@ end
             osr6   <= 16'h0000;
             osr7   <= 16'h0000;
 
-            conf0       <= 16'h00ff;
+            conf0       <= 8'hff;
             conf1       <= 16'h0000;
             for (int i = 0; i < 8; i++) begin
                 isr_configs[i] <= '0;
@@ -378,10 +401,19 @@ end
 
             hspio_add_start <= 8'h00;
             hspio_add_end <= 8'h00;
-            hspio_reg <= 5'd0;
+            hspio_reg <= 3'd0;
 
             isr_cpu_clear <= 8'h00;
             isr_cpu_push  <= 8'h00;
+
+            and_mask_o  <= 8'hFF;
+            or_mask_o   <= 8'h00;
+            xor_mask_o  <= 8'h00;
+            mask_o      <= 8'h00;
+            rpc_trigger_o  <= 8'h00;
+            level_o        <= 8'h00;
+            jitter_count_o <= 4'h0;
+            en_error_injection_o <= 1'b0;
 
         end
         else begin
@@ -624,7 +656,8 @@ end
                             end
 
                             DEST_CONF0: begin
-                                conf0 <= mov_data0;
+                                conf0 <= mov_data0[7:0];
+                                en_error_injection_o <= mov_data0[15];
                             end
 
                             DEST_CONF1: begin
@@ -637,7 +670,6 @@ end
 
                                 isr_cpu_clear[mov_data0[9:7]] <= mov_data0[10];
                                 isr_cpu_push[mov_data0[9:7]]  <= mov_data0[11];
-
                             end 
 
                             DEST_RGP: begin
@@ -645,22 +677,49 @@ end
                             end
 
                             DEST_HSPIO: begin 
-                                hspio_reg <= mov_data0[4:0];
+                                hspio_reg <= mov_data0[2:0];
                             end 
 
                             DEST_HSPIO_START: begin 
-                                if (transfer_data == 1'b0) begin
+                                if (transfer_data_out == 1'b0) begin
                                     hspio_add_start <= mov_data0[7:0];
                                 end 
                             end 
 
                             DEST_HSPIO_END: begin 
-                                if (transfer_data == 1'b0) begin
+                                if (transfer_data_out == 1'b0) begin
                                     hspio_add_end <= mov_data0[7:0];
                                 end 
                             end
 
+                            // Error injection
+                            DEST_AND_MASK: begin
+                                and_mask_o <= mov_data0[7:0];
+                            end
 
+                            DEST_OR_MASK: begin
+                                or_mask_o <= mov_data0[7:0];
+                            end
+
+                            DEST_XOR_MASK: begin
+                                xor_mask_o <= mov_data0[7:0];
+                            end
+
+                            DEST_MASK: begin
+                                mask_o <= mov_data0[7:0];
+                            end
+
+                            DEST_RPC: begin
+                                rpc_trigger_o <= mov_data0[7:0];
+                            end
+
+                            DEST_LEVEL: begin
+                                level_o <= mov_data0[7:0];
+                            end
+
+                            DEST_JITTER: begin
+                                jitter_count_o <= mov_data0[3:0];
+                            end
 
                             default: begin
                                 // Reserved destination.
@@ -678,6 +737,50 @@ end
                 end
 
             endcase
+
+                        // =============================================================
+            // Error injection
+            // =============================================================
+
+            if (error_inject_valid_i) begin
+
+                case (error_inject_addr_i[4:0])
+
+                    DEST_AND_MASK: begin
+                        and_mask_o <= error_inject_data_i[7:0];
+                    end
+
+                    DEST_OR_MASK: begin
+                        or_mask_o <= error_inject_data_i[7:0];
+                    end
+
+                    DEST_XOR_MASK: begin
+                        xor_mask_o <= error_inject_data_i[7:0];
+                    end
+
+                    DEST_MASK: begin
+                        mask_o <= error_inject_data_i[7:0];
+                    end
+
+                    DEST_RPC: begin
+                        rpc_trigger_o <= error_inject_data_i[7:0];
+                    end
+
+                    DEST_LEVEL: begin
+                        level_o <= error_inject_data_i[7:0];
+                    end
+
+                    DEST_JITTER: begin
+                        jitter_count_o <= error_inject_data_i[3:0];
+                    end
+
+                    default: begin
+                        // Unsupported destination: no update.
+                    end
+
+                endcase
+
+            end
 
         end
 
@@ -717,7 +820,6 @@ end
         .isr7        (isr7),
 
         .conf0      (conf0),
-        .conf1      (conf1),
         .isr_configs (isr_configs_packed),
         .isr_shift_on_mov (isr_shift_on_mov),
         .isr_cpu_clear (isr_cpu_clear),
@@ -733,11 +835,9 @@ end
         .isr_full   (isr_push)
     );
 
-    assign transfer_data = hspio_reg[0];
+    assign transfer_data_out = hspio_reg[0];
     assign clk_out1_en = hspio_reg[1];
     assign clk_out1_pol = hspio_reg[2];
-    assign clk_out2_en = hspio_reg[3];
-    assign clk_out2_pol = hspio_reg[4];
 
     CONTROL_HSPIO u_CONTROL_HSPIO(
     // Clock and reset
@@ -751,24 +851,19 @@ end
     .wr_data_i    (sram_wr_data),
 
     // Transfer Enable
-    .transfer_data (transfer_data),
+    .transfer_data_out (transfer_data_out),
     .hspio_add_start (hspio_add_start),
     .hspio_add_end   (hspio_add_end),
     // Input interfaces
-    .clk_in1    (hspio_gpio_i[5]),
-    .clk_in2    (hspio_gpio_i[4]),
+    .clk_in1    (clk_in1),
 
     // Output interfaces
     .clk_out1_en     (clk_out1_en),
-    .clk_out2_en     (clk_out2_en),
     .clk_out1_pol    (clk_out1_pol),
-    .clk_out2_pol    (clk_out2_pol),
 
-    .clk_out1    (hspio_gpio_o[5]),
-    .clk_out2    (hspio_gpio_o[4]),
+    .clk_out1    (hspio_gpio_o[4]),
 
     // GPIOs
-    .gpio_i    (hspio_gpio_i[3:0]),
     .gpio_o    (hspio_gpio_o[3:0])
 );
 

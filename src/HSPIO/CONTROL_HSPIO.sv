@@ -10,27 +10,23 @@ module CONTROL_HSPIO (
     input  logic [7:0]  wr_data_i,
 
     // Transfer Enable
-    input logic transfer_data,
+    input logic transfer_data_out,
     input logic [7:0] hspio_add_start,
     input logic [7:0] hspio_add_end,
 
     // Input interfaces
     input logic clk_in1,
-    input logic clk_in2,
 
     // Output interfaces
     input logic clk_out1_en,
-    input logic clk_out2_en,
     input logic clk_out1_pol,
-    input logic clk_out2_pol,
 
     output logic clk_out1,
-    output logic clk_out2,
 
     // GPIOs
-    input logic [3:0] gpio_i,
     output logic [3:0] gpio_o
 );
+
 
     logic data_ready;
     logic [7:0] data_addr;
@@ -65,7 +61,7 @@ module CONTROL_HSPIO (
     .rst_ni       (rst_ni),
 
     // Registers
-    .transfer_data (transfer_data),
+    .transfer_data_out (transfer_data_out),
     .hspio_add_start (hspio_add_start),
     .hspio_add_end (hspio_add_end),
     .data_in1      (data_in1),
@@ -77,16 +73,11 @@ module CONTROL_HSPIO (
 
     // I/O
     .clk_in1       (clk_in1),
-    .clk_in2       (clk_in2),
 
     .clk_out1_en    (clk_out1_en),
     .clk_out1_pol   (clk_out1_pol),
     .clk_out1       (clk_out1),
-    .clk_out2_pol   (clk_out2_pol),
-    .clk_out2_en    (clk_out2_en),
-    .clk_out2       (clk_out2),
 
-    .gpio_i       (gpio_i),
     .gpio_o       (gpio_o)
 );
 

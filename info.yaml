@@ -27,6 +27,7 @@ project:
     - "SC/uart.sv"
     - "SC/tracer_fifo.sv"
     - "SC/SC.sv"
+    - "error_injection.sv"
     - "top.sv"
     - "top_wrapper.sv"
 

@@ -25,7 +25,12 @@ module SC (
 
     // isr traces
     input logic [127:0] isr_regs,
-    input logic [7:0]   isr_push
+    input logic [7:0]   isr_push,
+
+    // Error injection interface
+    output logic [4:0] error_inject_addr,
+    output logic [7:0] error_inject_data,
+    output logic       error_inject_valid
 );
 
     // ============================================================
@@ -36,6 +41,7 @@ module SC (
     localparam logic [7:0] EOB      = 8'h0F;
     localparam logic [7:0] STARTCMD = 8'h81;
     localparam logic [7:0] STOPCMD  = 8'h11;
+    localparam logic [7:0] SETERROR = 8'hAA;
 
     localparam logic [8:0] MAX_COUNT = 9'd511;
 
@@ -57,6 +63,8 @@ module SC (
 
     logic rx_r;
     logic rx_2r;
+
+    
 
     always_ff @(posedge clk or negedge rst_ni) begin
         if (!rst_ni) begin
@@ -98,18 +106,21 @@ module SC (
     // State machine
     // ============================================================
     logic first_after_SOF;
-    typedef enum logic [2:0] {
-        ST_WAIT_BOOT,       // Waiting for SOF
-        ST_BOOT,            // Receiving boot data
-        ST_WAIT_START,      // EOB received, waiting for STARTCMD
-        ST_RUNNING,         // Boot finished, application running
-        ST_STOPPED,          // STOPCMD received
+    typedef enum logic [3:0] {
+        ST_WAIT_BOOT,
+        ST_BOOT,
+        ST_WAIT_START,
+        ST_RUNNING,
+        ST_STOPPED,
         ST_ERROR,
-        ST_WAIT_EOB
+        ST_WAIT_EOB,
+        ST_SETERROR_ADDR,
+        ST_SETERROR_DATA
     } state_t;
 
-    state_t state, next_state;
+    state_t state, next_state, return_state;
 
+    // TODO: the command send_error_injection data can be sent during ST_WAIT_START, ST_RUNNING, ST_STOPPED states
     // ============================================================
     // Next-state logic
     // ============================================================
@@ -180,12 +191,14 @@ module SC (
                     if (uart_data == STARTCMD) begin
                         next_state = ST_RUNNING;
                     end
-
                     else if (uart_data == SOF) begin
                         // Optional: allow a new boot immediately
                         // without STARTCMD.
                         next_state = ST_BOOT;
                     end
+                    else if (uart_data == SETERROR) begin 
+                        next_state = ST_SETERROR_ADDR;
+                    end 
                     else begin
                         next_state = state;
                     end
@@ -199,6 +212,9 @@ module SC (
 
                     if (uart_data == STOPCMD) begin
                         next_state = ST_STOPPED;
+                    end
+                    else if (uart_data == SETERROR) begin
+                        next_state = ST_SETERROR_ADDR;
                     end
                     else begin
                         next_state = state;
@@ -214,11 +230,11 @@ module SC (
                     if (uart_data == SOF) begin
                         next_state = ST_BOOT;
                     end
-
                     else if (uart_data == STARTCMD) begin
-                        // STARTCMD simply gets us out of stopped
-                        // state and back into running.
                         next_state = ST_RUNNING;
+                    end
+                    else if (uart_data == SETERROR) begin
+                        next_state = ST_SETERROR_ADDR;
                     end
                     else begin
                         next_state = state;
@@ -226,6 +242,13 @@ module SC (
 
                 end
 
+                ST_SETERROR_ADDR: begin
+                    next_state = ST_SETERROR_DATA;
+                end
+
+                ST_SETERROR_DATA: begin
+                    next_state = return_state;
+                end
 
                 default: begin
                     next_state = ST_WAIT_BOOT;
@@ -259,6 +282,12 @@ module SC (
             imem_load     <= 1'b1;
             dmem_load     <= 1'b1;
 
+            error_inject_addr  <= 5'b00000;
+            error_inject_data  <= 8'h00;
+            error_inject_valid <= 1'b0;
+
+            return_state <= ST_WAIT_START;
+
         end
         else begin
 
@@ -266,7 +295,7 @@ module SC (
 
             // data_valid is a one-clock pulse
             data_valid <= 1'b0;
-
+            error_inject_valid <= 1'b0;
 
             if (uart_data_valid) begin
 
@@ -331,11 +360,13 @@ module SC (
                         if (uart_data == STARTCMD) begin
                             boot_finished <= 1'b1;
                         end
-
                         else if (uart_data == SOF) begin
                             // New boot sequence.
                             word_count <= 9'd0;
                             error      <= 1'b0;
+                        end
+                        else if (uart_data == SETERROR) begin
+                            return_state <= ST_WAIT_START;
                         end
 
                     end
@@ -348,6 +379,9 @@ module SC (
 
                         if (uart_data == STOPCMD) begin
                             boot_finished <= 1'b0;
+                        end
+                        else if (uart_data == SETERROR) begin
+                            return_state <= ST_RUNNING;
                         end
 
                     end
@@ -363,12 +397,26 @@ module SC (
                             word_count <= 9'd0;
                             error      <= 1'b0;
                         end
-
                         else if (uart_data == STARTCMD) begin
                             // Leave stopped state.
                             boot_finished <= 1'b1;
                         end
+                        else if (uart_data == SETERROR) begin
+                            return_state <= ST_STOPPED;
+                        end
 
+                    end
+
+                    // Receive error injection address
+                    ST_SETERROR_ADDR: begin
+                        error_inject_addr <= uart_data[4:0];
+                    end
+
+
+                    // Receive error injection data
+                    ST_SETERROR_DATA: begin
+                        error_inject_data  <= uart_data;
+                        error_inject_valid <= 1'b1;
                     end
 
 

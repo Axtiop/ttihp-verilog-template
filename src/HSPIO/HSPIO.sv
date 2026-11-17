@@ -3,7 +3,7 @@ module HSPIO (
     input  logic rst_ni,
 
     // Registers
-    input  logic        transfer_data,
+    input  logic        transfer_data_out,
     input  logic [7:0]  hspio_add_start,
     input  logic [7:0]  hspio_add_end,
     input  logic [63:0] data_in1,
@@ -15,16 +15,11 @@ module HSPIO (
 
     // I/O
     input  logic clk_in1,
-    input  logic clk_in2,
 
     input logic clk_out1_en,
     input logic clk_out1_pol,
     output logic clk_out1,
-    input logic clk_out2_pol,
-    input logic clk_out2_en,
-    output logic clk_out2,
 
-    input  wire  [3:0] gpio_i,
     output logic [3:0] gpio_o
 );
 
@@ -35,16 +30,9 @@ module HSPIO (
     // GPIO output bit counter: 0 to 15
     logic [5:0] bit_counter;
 
-    // GPIO input synchronizers
-    logic [3:0] gpio_i_sync1;
-    logic [3:0] gpio_i_sync2;
-
-    // GPIO input shift registers
-    logic [15:0] gpio_i_shift [3:0];
-
     // Transfer request synchronizers
-    logic transfer_data_sync1;
-    logic transfer_data_sync;
+    logic transfer_data_out_sync1;
+    logic transfer_data_out_sync;
 
     // Data input synchronizers
     logic [63:0] data_in_sync1;
@@ -62,13 +50,13 @@ module HSPIO (
 
     // --------------------------------------------------
     // CDC synchronizers
-    // clk_in2 is the destination clock for these signals.
+    // clk_in1 is the destination clock for these signals.
     // --------------------------------------------------
 
-    always_ff @(posedge clk_in2 or negedge rst_ni) begin
+    always_ff @(posedge clk_in1 or negedge rst_ni) begin
         if (!rst_ni) begin
-            transfer_data_sync1 <= 1'b0;
-            transfer_data_sync  <= 1'b0;
+            transfer_data_out_sync1 <= 1'b0;
+            transfer_data_out_sync  <= 1'b0;
 
             data_in_sync1       <= 64'd0;
             data_in_sync1_r     <= 64'd0;
@@ -84,8 +72,8 @@ module HSPIO (
 
         end else begin
             // Double synchronizer for transfer_data
-            transfer_data_sync1 <= transfer_data;
-            transfer_data_sync  <= transfer_data_sync1;
+            transfer_data_out_sync1 <= transfer_data_out;
+            transfer_data_out_sync  <= transfer_data_out_sync1;
 
             // Double synchronizer for data_in
             data_in_sync1    <= data_in1;
@@ -106,13 +94,12 @@ module HSPIO (
     // --------------------------------------------------
     // GPIO output serialization
     // --------------------------------------------------
-    // TODO There is problem here, 
 
     logic [2:0] startup_counter;
     logic       transfer_started;
     logic       transfer_stopped;
 
-    always_ff @(posedge clk_in2 or negedge rst_ni) begin
+    always_ff @(posedge clk_in1 or negedge rst_ni) begin
         if (!rst_ni) begin
             bit_counter       <= 6'd0;
             data_addr         <= 8'd0;
@@ -128,7 +115,7 @@ module HSPIO (
 
         end else begin
 
-            if (transfer_data_sync) begin
+            if (transfer_data_out_sync) begin
 
                 // -------------------------------------------------
                 // Startup phase: wait for bit_counter == 15.
@@ -242,39 +229,6 @@ module HSPIO (
 
         end
     end
-    // --------------------------------------------------
-    // GPIO input synchronization
-    // --------------------------------------------------
-
-    always_ff @(posedge clk_in1 or negedge rst_ni) begin
-        if (!rst_ni) begin
-            gpio_i_sync1 <= 4'd0;
-            gpio_i_sync2 <= 4'd0;
-        end else begin
-            gpio_i_sync1 <= gpio_i;
-            gpio_i_sync2 <= gpio_i_sync1;
-        end
-    end
-
-    // --------------------------------------------------
-    // GPIO input shift registers
-    // --------------------------------------------------
-
-    always_ff @(posedge clk_in1 or negedge rst_ni) begin
-        if (!rst_ni) begin
-            gpio_i_shift[0] <= 16'd0;
-            gpio_i_shift[1] <= 16'd0;
-            gpio_i_shift[2] <= 16'd0;
-            gpio_i_shift[3] <= 16'd0;
-        end else if (transfer_data) begin
-
-            gpio_i_shift[0] <= {gpio_i_shift[0][14:0], gpio_i_sync2[0]};
-            gpio_i_shift[1] <= {gpio_i_shift[1][14:0], gpio_i_sync2[1]};
-            gpio_i_shift[2] <= {gpio_i_shift[2][14:0], gpio_i_sync2[2]};
-            gpio_i_shift[3] <= {gpio_i_shift[3][14:0], gpio_i_sync2[3]};
-
-        end
-    end
 
     // --------------------------------------------------
     // Clock output control
@@ -282,7 +236,6 @@ module HSPIO (
 
     always_comb begin
         clk_out1 = clk_out1_en ? clk_in1 : clk_out1_pol;
-        clk_out2 = clk_out2_en ? clk_in2 : clk_out2_pol;
     end
 
 endmodule

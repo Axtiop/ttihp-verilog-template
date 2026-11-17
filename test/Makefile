@@ -18,6 +18,7 @@ PROJECT_SOURCES = \
 	./HSPIO/HSPIO.sv \
 	./HSPIO/CONTROL_HSPIO.sv \
     ./FSM/imem_ram.sv \
+	./error_injection.sv \
 	./top_wrapper.sv \
     ./top.sv \
 
