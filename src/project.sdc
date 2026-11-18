@@ -58,8 +58,15 @@ set_output_delay $io_delay -clock aux_clk  $aux_out
 set_output_delay $io_delay -clock main_clk $main_out
 
 # ---- Electrical environment (as in the default SDC) ----
-set_driving_cell -lib_cell [cfg SYNTH_DRIVING_CELL sg13g2_buf_1] \
-                 -pin      [cfg SYNTH_DRIVING_CELL_PIN X] $data_in
+set drv [cfg SYNTH_DRIVING_CELL sg13g2_buf_4/X]
+if {[string first / $drv] >= 0} {
+    lassign [split $drv /] drv_cell drv_pin
+} else {
+    set drv_cell $drv
+    set drv_pin  [cfg SYNTH_DRIVING_CELL_PIN X]
+}
+set_driving_cell -lib_cell $drv_cell -pin $drv_pin $data_in
+
 set_load $cap_load_pf [all_outputs]
 set_max_fanout [cfg MAX_FANOUT_CONSTRAINT 10] [current_design]
 
