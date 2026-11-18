@@ -40,21 +40,23 @@ module error_injection (
   // ---------------------------------------------------------------
   // Jitter: per-bit delay line, 16 taps (tap 0 = no delay)
   // ---------------------------------------------------------------
-  logic [7:0] hist [1:15];
+  logic [7:0] hist [0:15];
   logic [7:0] delayed;
 
   always_ff @(posedge clk or negedge rst_ni) begin
-    if (!rst_ni) begin
-      for (int i = 1; i < 16; i++) hist[i] <= '0;
-    end else begin
-      hist[1] <= gpio_o_in;
-      for (int i = 2; i < 16; i++) hist[i] <= hist[i-1];
-    end
+      if (!rst_ni) begin
+          for (int i = 0; i < 16; i++)
+              hist[i] <= '0;
+      end else begin
+          hist[0] <= gpio_o_in;
+
+          for (int i = 1; i < 16; i++)
+              hist[i] <= hist[i-1];
+      end
   end
 
   always_comb begin
-    if (jitter_count_i == 4'd0) delayed = gpio_o_in;
-    else                        delayed = hist[jitter_count_i];
+      delayed = hist[jitter_count_i];
   end
 
   // ---------------------------------------------------------------
