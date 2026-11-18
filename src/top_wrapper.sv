@@ -19,7 +19,7 @@ module tt_um_example (
   // All output pins must be assigned. If not used, assign to 0.
 
   // List all unused inputs to prevent warnings
-  wire _unused = &{ena,ui_in[4], 1'b0};
+  wire _unused = &{ena, 1'b0};
 
   logic rx;
   assign rx = ui_in[7];
@@ -32,8 +32,8 @@ module tt_um_example (
   logic clk_in1;
   assign clk_in1 = ui_in[6];
 
-  logic error_modes_i;
-  assign error_modes_i = ui_in[5];
+  logic [1:0] error_modes_i;
+  assign error_modes_i = ui_in[5:4];
 
     top top (
         .clk   (clk),
