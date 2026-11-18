@@ -6,6 +6,17 @@ proc cfg {name default} {
     return $default
 }
 
+# Return the ports of 'ports' whose names are not in 'excluded_names'
+proc ports_without {ports excluded_names} {
+    set result {}
+    foreach p $ports {
+        if {[lsearch -exact $excluded_names [get_property $p name]] < 0} {
+            lappend result $p
+        }
+    }
+    return $result
+}
+
 set period [cfg CLOCK_PERIOD 20.0]
 
 # Placeholders: replace them with the values from the installed base.sdc.
@@ -30,10 +41,11 @@ set_clock_groups -asynchronous -group {main_clk} -group {aux_clk}
 
 # ---- Port lists ----
 set clk_ports  [get_ports {clk ui_in[6]}]
-set data_in    [remove_from_collection [all_inputs] $clk_ports]
+set data_in  [ports_without [all_inputs] {clk ui_in[6]}]
 
-set aux_out    [get_ports {uo_out[0] uo_out[1] uo_out[2] uo_out[3] uo_out[4]}]
-set main_out   [remove_from_collection [all_outputs] $aux_out]
+set aux_out  [get_ports {uo_out[0] uo_out[1] uo_out[2] uo_out[3] uo_out[4]}]
+set aux_out_names {uo_out[0] uo_out[1] uo_out[2] uo_out[3] uo_out[4]}
+set main_out [ports_without [all_outputs] $aux_out_names]
 
 # ---- I/O timing ----
 set io_delay [expr {$period * $io_pct}]
