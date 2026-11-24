@@ -40,7 +40,7 @@
 
   "RUN_MAGIC_DRC": 0,
   "ERROR_ON_ILLEGAL_OVERLAPS": 0,
-  "KLAYOUT_DRC_RUNSET": "pdk_dir::libs.tech/klayout/tech/drc/<cmos5 drc file>.drc",
+  "KLAYOUT_DRC_RUNSET": "pdk_dir::libs.tech/klayout/tech/drc/ihp-sg13cmos5l.drc",
   "RUN_KLAYOUT_DRC": 1,
 
   "//": "Don't put clock buffers on the outputs",
@@ -103,14 +103,14 @@
 
   "MACROS": {
     "RM_IHPSG13_1P_256x16_c2_bm_bist": {
-      "gds":   ["pdk_dir::libs.ref/sg13g2_sram/gds/RM_IHPSG13_1P_256x16_c2_bm_bist.gds"],
-      "lef":   ["pdk_dir::libs.ref/sg13g2_sram/lef/RM_IHPSG13_1P_256x16_c2_bm_bist.lef"],
-      "spice": ["pdk_dir::libs.ref/sg13g2_sram/cdl/RM_IHPSG13_1P_256x16_c2_bm_bist.cdl"],
+      "gds":   ["pdk_dir::libs.ref/sg13cmos5l_sram/gds/RM_IHPSG13_1P_256x16_c2_bm_bist.gds"],
+      "lef":   ["pdk_dir::libs.ref/sg13cmos5l_sram/lef/RM_IHPSG13_1P_256x16_c2_bm_bist.lef"],
+      "spice": ["pdk_dir::libs.ref/sg13cmos5l_sram/cdl/RM_IHPSG13_1P_256x16_c2_bm_bist.cdl"],
       "nl": [],  "spef": {},
       "lib": {
-        "nom_typ_1p20V_25C":   ["pdk_dir::libs.ref/sg13g2_sram/lib/RM_IHPSG13_1P_256x16_c2_bm_bist_typ_1p20V_25C.lib"],
-        "nom_fast_1p32V_m40C": ["pdk_dir::libs.ref/sg13g2_sram/lib/RM_IHPSG13_1P_256x16_c2_bm_bist_fast_1p32V_m55C.lib"],
-        "nom_slow_1p08V_125C": ["pdk_dir::libs.ref/sg13g2_sram/lib/RM_IHPSG13_1P_256x16_c2_bm_bist_slow_1p08V_125C.lib"]
+        "nom_typ_1p20V_25C":   ["pdk_dir::libs.ref/sg13cmos5l_sram/lib/RM_IHPSG13_1P_256x16_c2_bm_bist_typ_1p20V_25C.lib"],
+        "nom_fast_1p32V_m40C": ["pdk_dir::libs.ref/sg13cmos5l_sram/lib/RM_IHPSG13_1P_256x16_c2_bm_bist_fast_1p32V_m55C.lib"],
+        "nom_slow_1p08V_125C": ["pdk_dir::libs.ref/sg13cmos5l_sram/lib/RM_IHPSG13_1P_256x16_c2_bm_bist_slow_1p08V_125C.lib"]
       },
       "instances": {
         "top.uFSM.u_imem.i_sram": { "location": [3.36, 3.78],  "orientation": "FS" },
