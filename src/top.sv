@@ -16,7 +16,8 @@ module top #(
     output wire [NumGPIOS-1:0] gpio_o,
     input  wire       clk_in1,
     input  wire [1:0] error_modes_i,
-    output wire [4:0] hspio_gpio_o
+    output wire [4:0] hspio_gpio_o,
+    output wire       debug_o
 );
     
     // ------------------------------------------------------------------------
@@ -53,6 +54,10 @@ module top #(
     logic [7:0] error_inject_data_s;
     logic error_inject_valid_s;
 
+    // Debug signals
+    logic [7:0]   addr_debug_s;
+    logic [255:0] debug_s;
+
     SC u_SC (
         .clk   (clk),
         .rst_ni(rst_ni),
@@ -72,9 +77,10 @@ module top #(
         .isr_regs   (isr_regs),
         .isr_push   (isr_push),
 
-        .error_inject_addr (error_inject_addr_s),
-        .error_inject_data (error_inject_data_s),
-        .error_inject_valid (error_inject_valid_s)
+        .error_inject_addr  (error_inject_addr_s),
+        .error_inject_data  (error_inject_data_s),
+        .error_inject_valid (error_inject_valid_s),
+        .addr_debug_o       (addr_debug_s)
 
     );
     
@@ -139,6 +145,22 @@ module top #(
         .modes_i (error_modes_i),
         .gpio_o_in (gpio_o_in),
         .gpio_o_out (gpio_o)
+    );
+
+
+    always_comb begin
+        debug_s = '0;
+
+        debug_s[255:248] = isr_push;
+        debug_s[247:240] = rpc_trigger_s;
+        debug_s[239]     = en_error_injection_s;
+    end
+
+
+    debug_interface udebug_interface (
+        .debug_i (debug_s),
+        .addr_i  (addr_debug_s),
+        .debug_o (debug_o)
     );
 
 

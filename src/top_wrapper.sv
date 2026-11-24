@@ -27,7 +27,6 @@ module tt_um_example (
   logic tx;
   assign uo_out[7] = tx;
   assign uo_out[6] = 0;
-  assign uo_out[5] = 0;
 
   logic clk_in1;
   assign clk_in1 = ui_in[6];
@@ -45,7 +44,8 @@ module tt_um_example (
         .gpio_o (uio_out),
         .clk_in1 (clk_in1),
         .error_modes_i (error_modes_i),
-        .hspio_gpio_o (uo_out[4:0])
+        .hspio_gpio_o (uo_out[4:0]),
+        .debug_o (uo_out[5])
     );
 
 endmodule
