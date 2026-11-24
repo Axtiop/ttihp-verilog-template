@@ -28,6 +28,7 @@ project:
     - "SC/tracer_fifo.sv"
     - "SC/SC.sv"
     - "error_injection.sv"
+    - "debug_interface.sv"
     - "top.sv"
     - "top_wrapper.sv"
 
