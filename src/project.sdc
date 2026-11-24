@@ -1,4 +1,5 @@
 # project.sdc: replaces LibreLane's default base.sdc
+# Target PDK: ihp-sg13cmos5l (PDK-neutral; takes cell names from the flow)
 
 # Helper: read a flow variable if it exists, else use a fallback
 proc cfg {name default} {
@@ -19,9 +20,8 @@ proc ports_without {ports excluded_names} {
 
 set period [cfg CLOCK_PERIOD 20.0]
 
-# Placeholders: replace them with the values from the installed base.sdc.
-# I'm not certain these env names match your LibreLane version, so the
-# fallbacks apply if they don't.
+# Placeholders: replace them with the values from the base.sdc of the
+# *CMOS5L* LibreLane/PDK install (they were SG13G2 values).
 set io_pct       0.2
 set uncertainty  0.25
 set transition   0.15
@@ -40,25 +40,31 @@ set_clock_transition  $transition  [get_clocks {main_clk aux_clk}]
 set_clock_groups -asynchronous -group {main_clk} -group {aux_clk}
 
 # ---- Port lists ----
-set clk_ports  [get_ports {clk ui_in[6]}]
 set data_in  [ports_without [all_inputs] {clk ui_in[6]}]
 
-set aux_out  [get_ports {uo_out[0] uo_out[1] uo_out[2] uo_out[3] uo_out[4]}]
 set aux_out_names {uo_out[0] uo_out[1] uo_out[2] uo_out[3] uo_out[4]}
+set aux_out  [get_ports $aux_out_names]
 set main_out [ports_without [all_outputs] $aux_out_names]
 
 # ---- I/O timing ----
 set io_delay [expr {$period * $io_pct}]
 
-# All data inputs belong to the main clock (rx, error_modes_i, uio_in, rst_n)
 set_input_delay  $io_delay -clock main_clk $data_in
-
-# uo_out[4:0] come from aux_clk flops, the rest from main_clk flops
 set_output_delay $io_delay -clock aux_clk  $aux_out
 set_output_delay $io_delay -clock main_clk $main_out
 
-# ---- Electrical environment (as in the default SDC) ----
-set drv [cfg SYNTH_DRIVING_CELL sg13g2_buf_4/X]
+# ---- Electrical environment ----
+# SYNTH_DRIVING_CELL is set by the PDK config ("cell/pin" or just "cell").
+# Fallback: first *_buf_4 cell in the loaded libraries, so no SG13G2 name
+# is hardcoded.
+set drv [cfg SYNTH_DRIVING_CELL ""]
+if {$drv eq ""} {
+    set cands [get_lib_cells -quiet {*/*_buf_4}]
+    if {[llength $cands] == 0} {
+        error "project.sdc: SYNTH_DRIVING_CELL unset and no *_buf_4 lib cell found"
+    }
+    set drv "[lindex [split [get_full_name [lindex $cands 0]] /] end]/[cfg SYNTH_DRIVING_CELL_PIN X]"
+}
 if {[string first / $drv] >= 0} {
     lassign [split $drv /] drv_cell drv_pin
 } else {
@@ -72,6 +78,3 @@ set_max_fanout [cfg MAX_FANOUT_CONSTRAINT 10] [current_design]
 
 set_timing_derate -early [expr {1 - $derate}]
 set_timing_derate -late  [expr {1 + $derate}]
-
-# ---- Per-I/O overrides go here, e.g. ----
-# set_input_delay 5.0 -clock main_clk [get_ports {ui_in[7]}]
