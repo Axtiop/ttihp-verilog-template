@@ -19,20 +19,25 @@ module tt_um_example (
   // All output pins must be assigned. If not used, assign to 0.
 
   // List all unused inputs to prevent warnings
-  wire _unused = &{ena,ui_in[3:0], 1'b0};
+  wire _unused = &{ena,ui_in[3:0],ui_in[5:4], 1'b0}; // TODO: place this is for a test
 
   logic rx;
   assign rx = ui_in[7];
 
   logic tx;
-  assign uo_out[7] = tx;
+  //assign uo_out[7] = tx; // TODO: place this is for a test
+  assign uo_out[7] = 0; // TODO: place this is for a test
   assign uo_out[6] = 0;
 
   logic clk_in1;
   assign clk_in1 = ui_in[6];
 
   logic [1:0] error_modes_i;
-  assign error_modes_i = ui_in[5:4];
+  //assign error_modes_i = ui_in[5:4];
+  assign error_modes_i = 2'b00;
+
+  logic dump_debug_s; // TODO: place this is for a test
+  assign uo_out[5] = 0;
 
     top top (
         .clk   (clk),
@@ -45,7 +50,7 @@ module tt_um_example (
         .clk_in1 (clk_in1),
         .error_modes_i (error_modes_i),
         .hspio_gpio_o (uo_out[4:0]),
-        .debug_o (uo_out[5])
+        .debug_o (dump_debug_s)
     );
 
 endmodule
