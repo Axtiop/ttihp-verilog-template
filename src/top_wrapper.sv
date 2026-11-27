@@ -19,8 +19,13 @@ module tt_um_example (
   // All output pins must be assigned. If not used, assign to 0.
 
   // List all unused inputs to prevent warnings
-  wire _unused = &{ena,ui_in[3:0],ui_in[5:4], 1'b0}; // TODO: place this is for a test
-
+  wire _unused = &{ena,ui_in[7:0],uio_in[5:4], 1'b0}; // TODO: place this is for a test
+  assign uo_out[7:0] = 8'b01101110;
+  assign uio_out[7:0] = 8'b01101110;
+  assign uio_oe[7:0] = 8'b01101110;
+  
+  
+    /*
   logic rx;
   assign rx = ui_in[7];
 
@@ -52,5 +57,5 @@ module tt_um_example (
         .hspio_gpio_o (uo_out[4:0]),
         .debug_o (dump_debug_s)
     );
-
+    */
 endmodule
