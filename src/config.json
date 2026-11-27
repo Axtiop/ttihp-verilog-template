@@ -111,8 +111,7 @@
         "nom_slow_1p08V_125C": ["pdk_dir::libs.ref/sg13cmos5l_sram/lib/RM_IHPSG13_1P_256x16_c2_bm_bist_slow_1p08V_125C.lib"]
       },
       "instances": {
-        "top.uFSM.u_imem.i_sram": { "location": [3.36, 3.78],  "orientation": "FS" },
-        "top.uFSM.u_CONTROL_HSPIO.u_SRAM_HSPIO.HSPIO_sram": { "location": [3.36, 340.2],  "orientation": "N" }
+        "top.uFSM.u_imem.i_sram": { "location": [3.36, 3.78],  "orientation": "FS" }
       }
     }
   },
@@ -121,8 +120,6 @@
 
   "PDN_MACRO_CONNECTIONS": [
     "top\\.uFSM\\.u_imem\\.i_sram VPWR VGND VDD! VSS!",
-    "top\\.uFSM\\.u_imem\\.i_sram VPWR VGND VDDARRAY! VSS!",
-    "top\\.uFSM\\.u_CONTROL_HSPIO\\.u_SRAM_HSPIO\\.HSPIO_sram VPWR VGND VDD! VSS!",
-    "top\\.uFSM\\.u_CONTROL_HSPIO\\.u_SRAM_HSPIO\\.HSPIO_sram VPWR VGND VDDARRAY! VSS!"
+    "top\\.uFSM\\.u_imem\\.i_sram VPWR VGND VDDARRAY! VSS!"
   ]
 }
