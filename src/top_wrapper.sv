@@ -6,25 +6,44 @@
 `default_nettype none
 
 module tt_um_example (
-    input  wire [7:0] ui_in,    // Dedicated inputs
-    output wire [7:0] uo_out,   // Dedicated outputs
-    input  wire [7:0] uio_in,   // IOs: Input path
-    output wire [7:0] uio_out,  // IOs: Output path
-    output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)
-    input  wire       ena,      // always 1 when the design is powered, so you can ignore it
-    input  wire       clk,      // clock
-    input  wire       rst_n     // reset_n - low to reset
+    input  wire [7:0] ui_in,
+    output wire [7:0] uo_out,
+    input  wire [7:0] uio_in,
+    output wire [7:0] uio_out,
+    output wire [7:0] uio_oe,
+    input  wire       ena,
+    input  wire       clk,
+    input  wire       rst_n
 );
 
-  // All output pins must be assigned. If not used, assign to 0.
+    // Registers for the outputs
+    reg [7:0] out_reg;
+    reg [7:0] uio_out_reg;
+    reg [7:0] uio_oe_reg;
 
-  // List all unused inputs to prevent warnings
-  wire _unused = &{ena,ui_in[7:0],uio_in[5:4], 1'b0}; // TODO: place this is for a test
-  assign uo_out[7:0] = 8'b01101110;
-  assign uio_out[7:0] = 8'b01101110;
-  assign uio_oe[7:0] = 8'b01101110;
-  
-  
+    // Asynchronous active-low reset and clock-driven shifting
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            out_reg     <= 8'b01101110;
+            uio_out_reg <= 8'b01101110;
+            uio_oe_reg  <= 8'b01101110;
+        end
+        else begin
+            out_reg     <= {out_reg[6:0], out_reg[7]};
+            uio_out_reg <= {uio_out_reg[6:0], uio_out_reg[7]};
+            uio_oe_reg  <= {uio_oe_reg[6:0], uio_oe_reg[7]};
+        end
+    end
+
+    // Connect registers to output pins
+    assign uo_out  = out_reg;
+    assign uio_out = uio_out_reg;
+    assign uio_oe  = uio_oe_reg;
+
+    // Unused inputs
+    wire _unused = &{ena, ui_in, uio_in, 1'b0};
+
+endmodule
     /*
   logic rx;
   assign rx = ui_in[7];
@@ -57,5 +76,6 @@ module tt_um_example (
         .hspio_gpio_o (uo_out[4:0]),
         .debug_o (dump_debug_s)
     );
-    */
+
 endmodule
+        */

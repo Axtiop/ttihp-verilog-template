@@ -18,7 +18,7 @@ proc ports_without {ports excluded_names} {
     return $result
 }
 
-set period [cfg CLOCK_PERIOD 40.0]
+set period [cfg CLOCK_PERIOD 20.0]
 
 # Placeholders: replace them with the values from the base.sdc of the
 # *CMOS5L* LibreLane/PDK install (they were SG13G2 values).
