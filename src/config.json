@@ -92,11 +92,8 @@
    "//": "KDP1965 suggestion: so there is no free layer above the macro and I want the router to have no ideas about crossing it",
    "ROUTING_OBSTRUCTIONS": [
     "Metal2 3.36 3.78 238.0 120.0",  
-    "Metal2 3.36 342.8 238.0 459.0", 
     "Metal3 3.36 3.78 238.0 120.0",
-    "Metal3 3.36 342.8 238.0 459.02",
-    "Metal4 3.36 3.78 238.0 120.0",
-    "Metal4 3.36 342.8 238.0 459.02"
+    "Metal4 3.36 3.78 238.0 120.0"
    ],
 
   "MACROS": {
