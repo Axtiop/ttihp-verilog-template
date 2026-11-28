@@ -118,7 +118,7 @@ module FSM #(
     // =========================================================================
     // Instruction memory
     // =========================================================================
-logic [127:0] dmem [0:31];
+logic [127:0] dmem;
 
 logic [15:0] instruction;
 
@@ -198,15 +198,14 @@ imem_ram #(
 
 always_ff @(posedge clk or negedge rst_ni) begin
     if (!rst_ni) begin
-        for (int j = 0; j < 32; j++) begin
-            dmem[j] <= '0;
-        end
+        
+            dmem <= '0;
+        
     end
     else if (!boot_finished && data_valid) begin
 
         if (!imem_load && dmem_load) begin
-            dmem[word_count[8:4]]
-                [word_count[3:0]*8 +: 8] <= data_out;
+            dmem[word_count[3:0]*8 +: 8] <= data_out;
         end
 
     end
@@ -311,14 +310,14 @@ end
     logic [15:0] mov_data7;
 
 
-    assign mov_data0 = dmem[mov_slice][mov_word*16 +:16];
-    assign mov_data1 = dmem[mov_slice][31:16];
-    assign mov_data2 = dmem[mov_slice][47:32];
-    assign mov_data3 = dmem[mov_slice][63:48];
-    assign mov_data4 = dmem[mov_slice][79:64];
-    assign mov_data5 = dmem[mov_slice][95:80];
-    assign mov_data6 = dmem[mov_slice][111:96];
-    assign mov_data7 = dmem[mov_slice][127:112];
+    assign mov_data0 = dmem[mov_word*16 +:16];
+    assign mov_data1 = dmem[31:16];
+    assign mov_data2 = dmem[47:32];
+    assign mov_data3 = dmem[63:48];
+    assign mov_data4 = dmem[79:64];
+    assign mov_data5 = dmem[95:80];
+    assign mov_data6 = dmem[111:96];
+    assign mov_data7 = dmem[127:112];
 
 
     // =========================================================================
